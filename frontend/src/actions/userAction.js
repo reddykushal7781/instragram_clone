@@ -206,7 +206,7 @@ export const forgotPassword = (email) => async (dispatch) => {
             type: FORGOT_PASSWORD_FAIL,
             payload: error.response.data.message,
         });
-    }
+    } 
 };
 
 // Reset Password
