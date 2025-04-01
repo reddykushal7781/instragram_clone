@@ -9,7 +9,7 @@ export const isAuthenticated = catchAsync(async (req, res, next) => {
 
   if (!token) {
     // return next();
-    return res.status(401).json({ success: false, message: "Login required" });
+    return res.status(401).json({ success: false });
   }
 
   const decodedData = jwt.verify(token, process.env.JWT_SECRET);

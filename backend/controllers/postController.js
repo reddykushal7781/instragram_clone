@@ -73,10 +73,9 @@ export const deletePost = catchAsync(async (req, res, next) => {
 
   await deleteFile(post.image);
 
-  await post.remove();
+  await Post.findByIdAndDelete(req.params.id);
 
   const user = await User.findById(req.user._id);
-
   const index = user.posts.indexOf(req.params.id);
   user.posts.splice(index, 1);
   await user.save();
