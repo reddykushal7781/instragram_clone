@@ -1,9 +1,10 @@
-function ErrorHandler(message, statusCode) {
-  const error = new Error(message);
-  error.statusCode = statusCode;
+class ErrorHandler extends Error {
+  constructor(message, statusCode) {
+    super(message);
+    this.statusCode = statusCode;
 
-  Error.captureStackTrace(error, ErrorHandler);
-  return error;
+    Error.captureStackTrace(this, this.constructor);
+  }
 }
 
 export default ErrorHandler;

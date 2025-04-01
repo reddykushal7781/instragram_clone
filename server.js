@@ -1,36 +1,66 @@
-const path = require("path");
-const express = require("express");
-const app = require("./backend/app");
-const connectDatabase = require("./backend/config/database");
-const PORT = process.env.PORT || 4000;
+// Load environment variables first - MUST BE AT THE TOP
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Create __dirname equivalent in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load environment variables
+dotenv.config({ path: path.join(__dirname, "backend/config/config.env") });
+
+console.log("====== Environment Variables ======");
+console.log("AWS_BUCKET_NAME:", process.env.AWS_BUCKET_NAME);
+console.log("AWS_BUCKET_REGION:", process.env.AWS_BUCKET_REGION);
+console.log(
+  "AWS_IAM_USER_KEY:",
+  process.env.AWS_IAM_USER_KEY ? "******** (set)" : "undefined"
+);
+console.log(
+  "AWS_IAM_USER_SECRET:",
+  process.env.AWS_IAM_USER_SECRET ? "******** (set)" : "undefined"
+);
+console.log("NODE_ENV:", process.env.NODE_ENV);
+console.log("PORT:", process.env.PORT);
+console.log("==================================");
+
+// Now import the rest of the dependencies
+import express from "express";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import app from "./backend/app.js";
+import connectDatabase from "./backend/config/database.js";
+
+const PORT = process.env.PORT || 4001;
 
 connectDatabase();
 
-// deployment
-__dirname = path.resolve();
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "/frontend/build")));
+// Serve static files from public directory
+app.use("/public", express.static(path.join(__dirname, "public")));
 
-  app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "frontend", "build", "index.html"));
-  });
-} else {
-  app.get("/", (req, res) => {
-    res.send("Server is Running! 🚀");
-  });
-}
+// Development route
+app.get("/", (req, res) => {
+  res.send("Server is Running! 🚀");
+});
 
-const server = app.listen(PORT, () => {
+const httpServer = createServer(app);
+const server = httpServer.listen(PORT, () => {
   console.log(`Server Running on http://localhost:${PORT}`);
 });
 
 // ============= socket.io ==============
-
-const io = require("socket.io")(server, {
-  // pingTimeout: 60000,
+const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000", "http://localhost:6000"],
+    origin: "*",
+    methods: ["GET", "POST"],
+    credentials: true,
+    allowedHeaders: ["my-custom-header"],
   },
+  pingTimeout: 60000,
+  transports: ["polling", "websocket"],
+  allowEIO3: true,
+  path: "/socket.io",
 });
 
 let users = [];
@@ -49,29 +79,23 @@ const getUser = (userId) => {
 };
 
 io.on("connection", (socket) => {
-  console.log("🚀 Someone connected!");
-  // console.log(users);
+  console.log("Someone connected!");
 
-  // get userId and socketId from client
   socket.on("addUser", (userId) => {
     addUser(userId, socket.id);
     io.emit("getUsers", users);
   });
 
-  // get and send message
   socket.on("sendMessage", ({ senderId, receiverId, content }) => {
     const user = getUser(receiverId);
-
     io.to(user?.socketId).emit("getMessage", {
       senderId,
       content,
     });
   });
 
-  // typing states
   socket.on("typing", ({ senderId, receiverId }) => {
     const user = getUser(receiverId);
-    console.log(user);
     io.to(user?.socketId).emit("typing", senderId);
   });
 
@@ -80,11 +104,9 @@ io.on("connection", (socket) => {
     io.to(user?.socketId).emit("typing stop", senderId);
   });
 
-  // user disconnected
   socket.on("disconnect", () => {
-    console.log("⚠️ Someone disconnected");
+    console.log("Someone disconnected");
     removeUser(socket.id);
     io.emit("getUsers", users);
-    // console.log(users);
   });
 });

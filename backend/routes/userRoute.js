@@ -9,6 +9,7 @@ import {
   signupUser,
   updatePassword,
   updateProfile,
+  getAllUsers,
 } from "../controllers/userController.js";
 import { isAuthenticated } from "../middlewares/auth.js";
 import { uploadAvatar } from "../utils/awsFunctions.js";
@@ -35,6 +36,6 @@ router.route("/update/password").put(isAuthenticated, updatePassword);
 router.route("/follow/:id").get(isAuthenticated, followUser);
 
 router.route("/users").get(isAuthenticated, searchUsers);
-router.route("/users/suggested").get(isAuthenticated, searchUsers);
+router.route("/users/suggested").get(isAuthenticated, getAllUsers);
 
 export default router;

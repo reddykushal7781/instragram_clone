@@ -9,7 +9,8 @@ import dotenv from "dotenv";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-//direct environment variable loading here as a backup
+// Add direct environment variable loading here as a backup
+// This ensures environment variables are loaded regardless of import order
 dotenv.config({
   path: path.join(__dirname, "../../backend/config/config.env"),
 });
@@ -19,17 +20,18 @@ const publicDir = path.join(__dirname, "../../public");
 const profilesDir = path.join(publicDir, "profiles");
 const postsDir = path.join(publicDir, "posts");
 
-//storage state
+// Initialize storage state - will be set during runtime
 let s3Config = null;
 let useS3Storage = false;
 let storageInitialized = false;
 let initializationInProgress = false;
 
-// S3 initialization function
+// S3 initialization function to be called at runtime
 const initializeStorage = () => {
+  // Skip if already initialized or in progress
   if (storageInitialized || initializationInProgress) return;
 
-  //To stop concurrent
+  // Set flag to prevent concurrent initialization
   initializationInProgress = true;
 
   console.log("Initializing storage system...");
@@ -50,7 +52,7 @@ const initializeStorage = () => {
     process.env.AWS_IAM_USER_SECRET ? "********" : "undefined"
   );
 
-  // fallback
+  // Ensure local directories exist for fallback
   ensureLocalDirectories();
 
   // Check if AWS credentials are available
@@ -71,6 +73,7 @@ const initializeStorage = () => {
         apiVersion: "2006-03-01",
       });
 
+      // Simple synchronous check instead of async operation
       console.log(`Using S3 bucket: ${process.env.AWS_BUCKET_NAME}`);
       useS3Storage = true;
       storageInitialized = true;
@@ -90,6 +93,7 @@ const initializeStorage = () => {
   }
 };
 
+// Ensure local directories exist if needed
 const ensureLocalDirectories = () => {
   console.log("Setting up local storage directories...");
   [publicDir, profilesDir, postsDir].forEach((dir) => {
@@ -100,8 +104,9 @@ const ensureLocalDirectories = () => {
   });
 };
 
+// Get storage based on availability - these will wait for initialization if needed
 const getAvatarStorage = () => {
-  //storage initialized
+  // Make sure storage is initialized
   initializeStorage();
 
   if (useS3Storage) {
@@ -114,6 +119,7 @@ const getAvatarStorage = () => {
 };
 
 const getPostStorage = () => {
+  // Make sure storage is initialized
   initializeStorage();
 
   if (useS3Storage) {
@@ -125,7 +131,7 @@ const getPostStorage = () => {
   }
 };
 
-//specific storage implementations
+// Helper functions to get specific storage implementations
 const getS3AvatarStorage = () => {
   return multerS3({
     s3: s3Config,
@@ -202,6 +208,7 @@ const getLocalPostStorage = () => {
   });
 };
 
+// Configure multer with appropriate storage - using factory functions for delayed initialization
 export const uploadAvatar = () => {
   // Delayed initialization of multer
   initializeStorage();
@@ -224,9 +231,11 @@ export const uploadPost = () => {
   });
 };
 
-// Delete file function for S3
+// Delete file function for S3 or local storage
 export const deleteFile = async (fileuri) => {
+  // Ensure storage is initialized before deleting
   initializeStorage();
+
   console.log(`Attempting to delete file: ${fileuri}`);
 
   if (!fileuri) {
@@ -237,6 +246,7 @@ export const deleteFile = async (fileuri) => {
   if (useS3Storage && fileuri.includes("amazonaws.com")) {
     try {
       // Extract the file key from the S3 URL
+      // Format: https://bucket-name.s3.region.amazonaws.com/path/to/file.jpg
       const fileKey = fileuri.split("/").slice(-2).join("/");
       console.log(`Parsed file key: ${fileKey}`);
 
@@ -251,10 +261,11 @@ export const deleteFile = async (fileuri) => {
       return result;
     } catch (error) {
       console.error("Error deleting file from S3:", error);
+      // Log the error but don't throw it to prevent application crashes
       return { error: error.message };
     }
   } else {
-    //Local file deletion
+    // Local file deletion
     try {
       const localPath = path.join(publicDir, fileuri.split("/public/")[1]);
       console.log(`Attempting to delete local file: ${localPath}`);

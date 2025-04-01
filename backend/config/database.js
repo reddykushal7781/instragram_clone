@@ -1,12 +1,25 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const connectDatabase = () => {
-    mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  // Add more options reliability
+  const options = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+    family: 4,
+    // Use IPv4, skip trying IPv6
+  };
+  mongoose
+    .connect(process.env.MONGO_URI, options)
     .then(() => {
-        console.log("Mongoose Connected");
-    }).catch((error) => {
-        console.log(error);
+      console.log("MongoDB Connected Successfully");
+    })
+    .catch((error) => {
+      console.log("MongoDB Connection Error:");
+      console.log(error);
+      console.log("Server will run without database");
     });
-}
+};
 
-module.exports = connectDatabase;
+export default connectDatabase;
