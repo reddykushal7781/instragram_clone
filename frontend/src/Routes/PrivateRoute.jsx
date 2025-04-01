@@ -1,17 +1,20 @@
 import { useSelector } from 'react-redux';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
+import SpinLoader from '../components/Layouts/SpinLoader';
 
 const PrivateRoute = ({ children }) => {
+  const { loading, isAuthenticated } = useSelector((state) => state.user);
+  const location = useLocation();
 
-    const { loading, isAuthenticated, user } = useSelector(state => state.user);
+  if (loading) {
+    return <SpinLoader />;
+  }
 
-    return (
-        <>
-            {loading === false && (
-                isAuthenticated === false ? <Navigate to="/login" /> : children
-            )}
-        </>
-    );
+  if (!isAuthenticated && !['/login', '/register'].includes(location.pathname)) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
 };
 
 export default PrivateRoute;

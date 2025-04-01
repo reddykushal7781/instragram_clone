@@ -1,65 +1,67 @@
-export const SOCKET_ENDPOINT = "http://localhost:4000";
-// export const SOCKET_ENDPOINT = "https://instagrammern.herokuapp.com";
+import config from './config';
+
+// Use our centralized configuration
+export const SOCKET_ENDPOINT = config.SOCKET_URL;
 
 export const stories = [
   {
-    title: "JavaScript",
-    image: "javascript",
+    title: 'JavaScript',
+    image: 'javascript',
   },
   {
-    title: "Node.js",
-    image: "nodejs",
+    title: 'Node.js',
+    image: 'nodejs',
   },
   {
-    title: "Express.js",
-    image: "expressjs",
+    title: 'Express.js',
+    image: 'expressjs',
   },
   {
-    title: "MongoDB",
-    image: "mongodb",
+    title: 'MongoDB',
+    image: 'mongodb',
   },
   {
-    title: "React.js",
-    image: "reactjs",
+    title: 'React.js',
+    image: 'reactjs',
   },
   {
-    title: "Socket.io",
-    image: "socketio",
+    title: 'Socket.io',
+    image: 'socketio',
   },
   {
-    title: "TailwindCSS",
-    image: "tailwind",
+    title: 'TailwindCSS',
+    image: 'tailwind',
   },
   {
-    title: "Heroku",
-    image: "heroku",
+    title: 'Heroku',
+    image: 'heroku',
   },
   {
-    title: "MaterialUI",
-    image: "mui",
+    title: 'MaterialUI',
+    image: 'mui',
   },
   {
-    title: "Redux",
-    image: "redux",
+    title: 'Redux',
+    image: 'redux',
   },
   {
-    title: "Multer",
-    image: "multer",
+    title: 'Multer',
+    image: 'multer',
   },
   {
-    title: "AWS S3",
-    image: "aws-s3",
+    title: 'AWS S3',
+    image: 'aws-s3',
   },
   {
-    title: "Sendgrid",
-    image: "sendgrid",
+    title: 'Sendgrid',
+    image: 'sendgrid',
   },
   {
-    title: "Axios",
-    image: "axios",
+    title: 'Axios',
+    image: 'axios',
   },
   {
-    title: "Toastify",
-    image: "toastify",
+    title: 'Toastify',
+    image: 'toastify',
   },
 ];
