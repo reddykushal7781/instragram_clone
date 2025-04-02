@@ -14,7 +14,7 @@ import {
 } from "./SvgIcons";
 import { Picker } from "emoji-mart";
 import ScrollToBottom from "react-scroll-to-bottom";
-import axios from "axios";
+import axiosInstance from "../utils/axios";
 import moment from "moment";
 import { Dialog } from "@mui/material";
 import { toast } from "react-toastify";
@@ -52,23 +52,23 @@ const PostItem = ({
   const handleLike = async () => {
     setLiked(!liked);
     await dispatch(likePost(_id));
-    const { data } = await axios.get(`/api/v1/post/detail/${_id}`);
-    setAllLikes(data.post.likes);
+    const { data } = await axiosInstance.get(`/api/v1/post/detail/${_id}`);
+    setAllLikes(data?.post.likes);
   };
 
   const handleComment = async (e) => {
     e.preventDefault();
     await dispatch(addComment(_id, comment));
     setComment("");
-    const { data } = await axios.get(`/api/v1/post/detail/${_id}`);
-    setAllComments(data.post.comments);
+    const { data } = await axiosInstance.get(`/api/v1/post/detail/${_id}`);
+    setAllComments(data?.post.comments);
   };
 
   const handleSave = async () => {
     setSaved(!saved);
     await dispatch(savePost(_id));
-    const { data } = await axios.get(`/api/v1/post/detail/${_id}`);
-    setAllSavedBy(data.post.savedBy);
+    const { data } = await axiosInstance.get(`/api/v1/post/detail/${_id}`);
+    setAllSavedBy(data?.post.savedBy);
   };
 
   const handleDeletePost = () => {
