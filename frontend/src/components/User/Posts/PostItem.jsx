@@ -51,13 +51,13 @@ const PostItem = ({
   useEffect(() => {
     if (postedBy && likes && user) {
       setIsLoading(false);
-      setLiked(likes.some((id) => id === user?._id));
+      setLiked(likes?.some((id) => id === user._id));
     }
   }, [postedBy, likes, user]);
 
   useEffect(() => {
     if (savedBy && user) {
-      setSaved(savedBy.some((id) => id === user?._id));
+      setSaved(savedBy?.some((id) => id === user?._id));
     }
   }, [savedBy, user]);
 
@@ -77,6 +77,7 @@ const PostItem = ({
     e.preventDefault();
     if (comment.trim()) {
       dispatch(addComment(_id, comment));
+      setComment('');
     }
   };
 
