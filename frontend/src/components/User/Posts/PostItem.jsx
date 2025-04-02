@@ -51,7 +51,7 @@ const PostItem = ({
   useEffect(() => {
     if (postedBy && likes && user) {
       setIsLoading(false);
-      setLiked(likes?.some((id) => id === user._id));
+      setLiked(likes?.some((id) => id === user?._id));
     }
   }, [postedBy, likes, user]);
 
@@ -77,7 +77,6 @@ const PostItem = ({
     e.preventDefault();
     if (comment.trim()) {
       dispatch(addComment(_id, comment));
-      setComment('');
     }
   };
 
