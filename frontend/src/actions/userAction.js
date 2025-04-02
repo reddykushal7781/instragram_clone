@@ -27,7 +27,7 @@ import {
   USER_DETAILS_REQUEST,
   USER_DETAILS_SUCCESS,
 } from "../constants/userConstants";
-import axios from "axios";
+import axiosInstance from "../utils/axios";
 
 // Login User
 export const loginUser = (userId, password) => async (dispatch) => {
@@ -41,7 +41,7 @@ export const loginUser = (userId, password) => async (dispatch) => {
       withCredentials: true
     };
 
-    const { data } = await axios.post(
+    const { data } = await axiosInstance.post(
       "/api/v1/login",
       { userId, password },
       config
@@ -79,7 +79,7 @@ export const registerUser = (userData) => async (dispatch) => {
       },
     };
 
-    const { data } = await axios.post("/api/v1/signup", userData, config);
+    const { data } = await axiosInstance.post("/api/v1/signup", userData, config);
 
     localStorage.setItem("isAuthenticated", "true");
     localStorage.setItem("user", JSON.stringify(data.user))
@@ -117,7 +117,7 @@ export const loadUser = () => async (dispatch) => {
     }
 
     // If no localStorage data, try to fetch from server
-    const { data } = await axios.get("/api/v1/me", {
+    const { data } = await axiosInstance.get("/api/v1/me", {
       withCredentials: true,
     });
 
@@ -142,7 +142,7 @@ export const loadUser = () => async (dispatch) => {
 // Logout User
 export const logoutUser = () => async (dispatch) => {
   try {
-    await axios.get("/api/v1/logout",{ withCredentials: true });
+    await axiosInstance.get("/api/v1/logout",{ withCredentials: true });
     dispatch({ type: LOGOUT_USER_SUCCESS });
     
     localStorage.removeItem("isAuthenticated");
@@ -163,7 +163,7 @@ export const logoutUser = () => async (dispatch) => {
 export const getUserDetails = (username) => async (dispatch) => {
   try {
     dispatch({ type: USER_DETAILS_REQUEST });
-    const { data } = await axios.get(`/api/v1/user/${username}`,{ withCredentials: true });
+    const { data } = await axiosInstance.get(`/api/v1/user/${username}`,{ withCredentials: true });
 
     dispatch({
       type: USER_DETAILS_SUCCESS,
@@ -184,7 +184,7 @@ export const getUserDetails = (username) => async (dispatch) => {
 export const getUserDetailsById = (userId) => async (dispatch) => {
   try {
     dispatch({ type: USER_DETAILS_REQUEST });
-    const { data } = await axios.get(`/api/v1/userdetails/${userId}`,{ withCredentials: true });
+    const { data } = await axiosInstance.get(`/api/v1/userdetails/${userId}`,{ withCredentials: true });
 
     dispatch({
       type: USER_DETAILS_SUCCESS,
@@ -206,7 +206,7 @@ export const getSuggestedUsers = () => async (dispatch) => {
   try {
     dispatch({ type: ALL_USERS_REQUEST });
 
-    const { data } = await axios.get("/api/v1/users/suggested", { withCredentials: true });
+    const { data } = await axiosInstance.get("/api/v1/users/suggested", { withCredentials: true });
 
     dispatch({
       type: ALL_USERS_SUCCESS,
@@ -227,7 +227,7 @@ export const getSuggestedUsers = () => async (dispatch) => {
 export const followUser = (userId) => async (dispatch) => {
   try {
     dispatch({ type: FOLLOW_USER_REQUEST });
-    const { data } = await axios.get(`/api/v1/follow/${userId}`,{withCredentials:true});
+    const { data } = await axiosInstance.get(`/api/v1/follow/${userId}`,{withCredentials:true});
 
     dispatch({
       type: FOLLOW_USER_SUCCESS,
@@ -257,7 +257,7 @@ export const updateProfile = (formData) => async (dispatch) => {
       withCredentials: true
     };
 
-    const { data } = await axios.put(
+    const { data } = await axiosInstance.put(
       "/api/v1/update/profile",
       formData,
       config
@@ -289,7 +289,7 @@ export const updatePassword = (passwords) => async (dispatch) => {
       },
     };
 
-    const { data } = await axios.put(
+    const { data } = await axiosInstance.put(
       "/api/v1/update/password",
       passwords,
       config

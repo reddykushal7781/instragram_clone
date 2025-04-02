@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axiosInstance from '../utils/axios';
 import {
   CLEAR_ERRORS,
   DELETE_POST_FAIL,
@@ -37,7 +37,7 @@ export const addNewPost = (postData) => async (dispatch) => {
       withCredentials: true
     };
 
-    const { data } = await axios.post('/api/v1/post/new', postData, config);
+    const { data } = await axiosInstance.post('/api/v1/post/new', postData, config);
 
     dispatch({
       type: NEW_POST_SUCCESS,
@@ -62,7 +62,7 @@ export const getPostsOfFollowing =
         dispatch({ type: POST_FOLLOWING_REQUEST });
 
         setTimeout(async () => {
-          const { data } = await axios.get(`/api/v1/posts?page=${page}`);
+          const { data } = await axiosInstance.get(`/api/v1/posts?page=${page}`);
 
           dispatch({
             type: POST_FOLLOWING_SUCCESS,
@@ -84,7 +84,7 @@ export const getPostsOfFollowing =
 export const likePost = (postId) => async (dispatch) => {
   try {
     dispatch({ type: LIKE_UNLIKE_POST_REQUEST });
-    const { data } = await axios.get(`/api/v1/post/${postId}`);
+    const { data } = await axiosInstance.get(`/api/v1/post/${postId}`);
 
     dispatch({
       type: LIKE_UNLIKE_POST_SUCCESS,
@@ -112,7 +112,7 @@ export const addComment = (postId, comment) => async (dispatch) => {
       },
       withCredentials: true
     };
-    const { data } = await axios.post(
+    const { data } = await axiosInstance.post(
       `/api/v1/post/comment/${postId}`,
       { comment },
       config,
@@ -137,7 +137,7 @@ export const addComment = (postId, comment) => async (dispatch) => {
 export const savePost = (postId) => async (dispatch) => {
   try {
     dispatch({ type: SAVE_UNSAVE_POST_REQUEST });
-    const { data } = await axios.post(`/api/v1/post/${postId}`);
+    const { data } = await axiosInstance.post(`/api/v1/post/${postId}`);
 
     dispatch({
       type: SAVE_UNSAVE_POST_SUCCESS,
@@ -158,7 +158,7 @@ export const savePost = (postId) => async (dispatch) => {
 export const deletePost = (postId) => async (dispatch) => {
   try {
     dispatch({ type: DELETE_POST_REQUEST });
-    const { data } = await axios.delete(`/api/v1/post/${postId}`);
+    const { data } = await axiosInstance.delete(`/api/v1/post/${postId}`);
 
     dispatch({
       type: DELETE_POST_SUCCESS,
@@ -179,7 +179,7 @@ export const deletePost = (postId) => async (dispatch) => {
 export const getPostDetails = (postId) => async (dispatch) => {
   try {
     dispatch({ type: POST_DETAILS_REQUEST });
-    const { data } = await axios.get(`/api/v1/post/detail/${postId}`);
+    const { data } = await axiosInstance.get(`/api/v1/post/detail/${postId}`);
 
     dispatch({
       type: POST_DETAILS_SUCCESS,

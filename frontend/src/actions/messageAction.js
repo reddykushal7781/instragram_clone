@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axiosInstance from '../utils/axios';
 import {
   ALL_MESSAGES_FAIL,
   ALL_MESSAGES_REQUEST,
@@ -14,7 +14,25 @@ export const getAllMessages = (chatId) => async (dispatch) => {
   try {
     dispatch({ type: ALL_MESSAGES_REQUEST });
 
-    const { data } = await axios.get(`/api/v1/messages/${chatId}`);
+    const { data } = await axiosInstance.get(`/api/v1/messages/${chatId}`);
+
+    dispatch({
+      type: ALL_MESSAGES_SUCCESS,
+      payload: data.messages,
+    });
+  } catch (error) {
+    dispatch({
+      type: ALL_MESSAGES_FAIL,
+      payload: error.response.data.message,
+    });
+  }
+};
+
+// Get Messages
+export const getMessages = () => async (dispatch) => {
+  try {
+    dispatch({ type: ALL_MESSAGES_REQUEST });
+    const { data } = await axiosInstance.get('/api/v1/messages', { withCredentials: true });
 
     dispatch({
       type: ALL_MESSAGES_SUCCESS,
@@ -34,7 +52,7 @@ export const sendMessage = (msgData) => async (dispatch) => {
     dispatch({ type: NEW_MESSAGE_REQUEST });
 
     const config = { headers: { 'Content-Type': 'application/json' } };
-    const { data } = await axios.post('/api/v1/newMessage/', msgData, config);
+    const { data } = await axiosInstance.post('/api/v1/newMessage/', msgData, config);
 
     dispatch({
       type: NEW_MESSAGE_SUCCESS,
