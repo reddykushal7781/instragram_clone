@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { searchIcon } from '../SvgIcons';
 import SearchUserItem from './SearchUserItem';
+import { toast } from 'react-toastify';
 
 const SearchBox = () => {
 
@@ -15,11 +16,23 @@ const SearchBox = () => {
   const fetchUsers = async (term) => {
     try {
       setLoading(true);
+      console.log('Fetching users with term:', term);
       const { data } = await axios.get(`/api/v1/users?keyword=${encodeURIComponent(term)}`);
-      setUsers(data.users || []);
+      console.log('Search response:', data);
+      
+      if (data.success && Array.isArray(data.users)) {
+        setUsers(data.users);
+      } else {
+        console.error('Invalid response format:', data);
+        setUsers([]);
+      }
       setLoading(false);
     } catch (error) {
       console.error("Error fetching users:", error);
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+        toast.error(error.response.data.message || 'Error searching users');
+      }
       setUsers([]);
       setLoading(false);
     }

@@ -23,12 +23,25 @@ const NewDialog = ({ open, onClose }) => {
   const fetchUsers = async (term) => {
     try {
       setLoading(true);
+      console.log('Fetching users with term:', term);
       const { data } = await axios.get(`/api/v1/users?keyword=${encodeURIComponent(term)}`);
-      const usersList = data.users || [];
-      setUsers(usersList.filter((u) => u._id !== self._id));
+      console.log('Search response:', data);
+      
+      if (data.success && Array.isArray(data.users)) {
+        const filteredUsers = data.users.filter((u) => u._id !== self._id);
+        console.log('Filtered users:', filteredUsers);
+        setUsers(filteredUsers);
+      } else {
+        console.error('Invalid response format:', data);
+        setUsers([]);
+      }
       setLoading(false);
     } catch (error) {
       console.error("Error fetching users:", error);
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+        toast.error(error.response.data.message || 'Error searching users');
+      }
       setUsers([]);
       setLoading(false);
     }
@@ -41,7 +54,7 @@ const NewDialog = ({ open, onClose }) => {
       } else {
         setUsers([]);
       }
-    }, 500); // Add debounce delay
+    }, 500);
 
     return () => {
       clearTimeout(debounceTimer);
@@ -87,7 +100,7 @@ const NewDialog = ({ open, onClose }) => {
         </div>
 
         <div className="flex flex-col overflow-x-hidden h-96 w-full">
-          {loading ?
+          {loading ? (
             Array(8).fill('').map((el, i) => (
               <div className="flex items-center gap-2 py-2 px-4" key={i}>
                 <Skeleton animation="wave" variant="circular" width={60} height={50} />
@@ -97,21 +110,21 @@ const NewDialog = ({ open, onClose }) => {
                 </div>
               </div>
             ))
-            : users.length > 0 ?
-              users.map((u) => (
-                <div onClick={() => addToChat(u._id)} className="flex items-center hover:bg-gray-50 py-2 px-4 cursor-pointer" key={u._id}>
-                  <div className="flex space-x-3 items-center">
-                    <img draggable="false" className="w-11 h-11 rounded-full object-cover" src={u.avatar} alt="avatar" />
-                    <div className="flex flex-col items-start">
-                      <span className="text-black text-sm font-semibold">{u.username}</span>
-                      <span className="text-gray-400 text-sm">{u.name}</span>
-                    </div>
+          ) : users.length > 0 ? (
+            users.map((u) => (
+              <div onClick={() => addToChat(u._id)} className="flex items-center hover:bg-gray-50 py-2 px-4 cursor-pointer" key={u._id}>
+                <div className="flex space-x-3 items-center">
+                  <img draggable="false" className="w-11 h-11 rounded-full object-cover" src={u.avatar} alt="avatar" />
+                  <div className="flex flex-col items-start">
+                    <span className="text-black text-sm font-semibold">{u.username}</span>
+                    <span className="text-gray-400 text-sm">{u.name}</span>
                   </div>
                 </div>
-              ))
-              :
-              <span className="text-gray-400 text-sm p-2">No accounts found.</span>
-          }
+              </div>
+            ))
+          ) : (
+            <span className="text-gray-400 text-sm p-2">No accounts found.</span>
+          )}
         </div>
       </div>
     </Dialog>
