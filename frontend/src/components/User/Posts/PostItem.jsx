@@ -37,14 +37,6 @@ const PostItem = ({
   const dispatch = useDispatch();
   const commentInput = useRef(null);
   const { user } = useSelector((state) => state.user);
-  const { posts } = useSelector((state) => state.postOfFollowing);
-
-  // Get the latest post data from the posts array
-  const currentPost = posts.find(post => post._id === _id) || {
-    likes: [],
-    comments: [],
-    savedBy: []
-  };
 
   const [open, setOpen] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -55,16 +47,16 @@ const PostItem = ({
   const [likeEffect, setLikeEffect] = useState(false);
 
   useEffect(() => {
-    if (currentPost.likes && user) {
-      setLiked(currentPost.likes.some((id) => id === user._id));
+    if (likes && user) {
+      setLiked(likes.some((id) => id === user._id));
     }
-  }, [currentPost.likes, user]);
+  }, [likes, user]);
 
   useEffect(() => {
-    if (currentPost.savedBy && user) {
-      setSaved(currentPost.savedBy.some((id) => id === user._id));
+    if (savedBy && user) {
+      setSaved(savedBy.some((id) => id === user._id));
     }
-  }, [currentPost.savedBy, user]);
+  }, [savedBy, user]);
 
   const handleLike = () => {
     setLiked(!liked);
@@ -119,10 +111,10 @@ const PostItem = ({
         />
         <div className="hidden group-hover:flex text-white absolute pointer-events-none gap-4">
           <span>
-            <FavoriteIcon /> {currentPost.likes?.length || 0}
+            <FavoriteIcon /> {likes?.length || 0}
           </span>
           <span>
-            <ModeCommentIcon /> {currentPost.comments?.length || 0}
+            <ModeCommentIcon /> {comments?.length || 0}
           </span>
         </div>
       </div>
@@ -219,7 +211,7 @@ const PostItem = ({
                 {caption}
               </p>
 
-              {currentPost.comments?.map((c) => (
+              {comments?.map((c) => (
                 <div className="flex items-start space-x-1 mb-3" key={c._id}>
                   <Link to={`/${c.user?.username}`}>
                     <img
@@ -262,7 +254,7 @@ const PostItem = ({
 
                 {/* likes  */}
                 <span className="w-full font-semibold text-sm">
-                  {currentPost.likes?.length || 0} likes
+                  {likes?.length || 0} likes
                 </span>
 
                 {/* time */}

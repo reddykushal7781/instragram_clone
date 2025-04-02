@@ -52,14 +52,18 @@ export const postOfFollowingReducer = (state = { posts: [] }, { type, payload })
     return {
       ...state,
       posts: state.posts.map(post => 
-        post._id === payload.post._id ? payload.post : post
+        post._id === payload.post._id 
+          ? { ...post, likes: payload.post.likes } 
+          : post
       ),
     };
   case NEW_COMMENT_SUCCESS:
     return {
       ...state,
       posts: state.posts.map(post => 
-        post._id === payload._id ? payload : post
+        post._id === payload._id 
+          ? { ...post, comments: payload.comments } 
+          : post
       ),
     };
   case POST_FOLLOWING_RESET:
