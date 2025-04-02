@@ -38,6 +38,7 @@ const PostItem = ({
   const commentInput = useRef(null);
   const { user } = useSelector((state) => state.user);
   const { success: commentSuccess, post: updatedPost } = useSelector((state) => state.newComment);
+  const { posts } = useSelector((state) => state.postOfFollowing);
 
   const [open, setOpen] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -47,17 +48,24 @@ const PostItem = ({
   const [deleteModal, setDeleteModal] = useState(false);
   const [likeEffect, setLikeEffect] = useState(false);
 
-  useEffect(() => {
-    if (likes && user) {
-      setLiked(likes.some((id) => id === user._id));
-    }
-  }, [likes, user]);
+  // Get the latest post data from the posts array
+  const currentPost = posts.find(post => post._id === _id) || {
+    likes: [],
+    comments: [],
+    savedBy: []
+  };
 
   useEffect(() => {
-    if (savedBy && user) {
-      setSaved(savedBy.some((id) => id === user._id));
+    if (currentPost.likes && user) {
+      setLiked(currentPost.likes.some((id) => id === user._id));
     }
-  }, [savedBy, user]);
+  }, [currentPost.likes, user]);
+
+  useEffect(() => {
+    if (currentPost.savedBy && user) {
+      setSaved(currentPost.savedBy.some((id) => id === user._id));
+    }
+  }, [currentPost.savedBy, user]);
 
   useEffect(() => {
     if (commentSuccess && updatedPost && updatedPost._id === _id) {
@@ -118,10 +126,10 @@ const PostItem = ({
         />
         <div className="hidden group-hover:flex text-white absolute pointer-events-none gap-4">
           <span>
-            <FavoriteIcon /> {likes?.length || 0}
+            <FavoriteIcon /> {currentPost.likes?.length || 0}
           </span>
           <span>
-            <ModeCommentIcon /> {comments?.length || 0}
+            <ModeCommentIcon /> {currentPost.comments?.length || 0}
           </span>
         </div>
       </div>
@@ -218,7 +226,7 @@ const PostItem = ({
                 {caption}
               </p>
 
-              {comments?.map((c) => (
+              {currentPost.comments?.map((c) => (
                 <div className="flex items-start space-x-1 mb-3" key={c._id}>
                   <Link to={`/${c.user?.username}`}>
                     <img
@@ -261,7 +269,7 @@ const PostItem = ({
 
                 {/* likes  */}
                 <span className="w-full font-semibold text-sm">
-                  {likes?.length || 0} likes
+                  {currentPost.likes?.length || 0} likes
                 </span>
 
                 {/* time */}
