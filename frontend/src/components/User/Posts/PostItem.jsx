@@ -37,6 +37,7 @@ const PostItem = ({
   const dispatch = useDispatch();
   const commentInput = useRef(null);
   const { user } = useSelector((state) => state.user);
+  const { success: commentSuccess, post: updatedPost } = useSelector((state) => state.newComment);
 
   const [open, setOpen] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -60,6 +61,13 @@ const PostItem = ({
     }
   }, [savedBy, user]);
 
+  useEffect(() => {
+    if (commentSuccess && updatedPost && updatedPost._id === _id) {
+      setComment('');
+      setShowEmojis(false);
+    }
+  }, [commentSuccess, updatedPost, _id]);
+
   const handleLike = () => {
     setLiked(!liked);
     dispatch(likePost(_id));
@@ -69,7 +77,6 @@ const PostItem = ({
     e.preventDefault();
     if (comment.trim()) {
       dispatch(addComment(_id, comment));
-      setComment('');
     }
   };
 
