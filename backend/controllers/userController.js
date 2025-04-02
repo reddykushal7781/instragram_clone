@@ -349,29 +349,29 @@ export const followUser = catchAsync(async (req, res, next) => {
 
 // User Search
 export const searchUsers = catchAsync(async (req, res, next) => {
-  if (req.query.keyword) {
-    const users = await User.find({
-      $or: [
-        {
-          name: {
-            $regex: req.query.keyword,
-            $options: "i",
-          },
+  const keyword = req.query.keyword || '';
+  
+  const users = await User.find({
+    $or: [
+      {
+        name: {
+          $regex: keyword,
+          $options: "i",
         },
-        {
-          username: {
-            $regex: req.query.keyword,
-            $options: "i",
-          },
+      },
+      {
+        username: {
+          $regex: keyword,
+          $options: "i",
         },
-      ],
-    });
+      },
+    ],
+  });
 
-    res.status(200).json({
-      success: true,
-      users,
-    });
-  }
+  res.status(200).json({
+    success: true,
+    users,
+  });
 });
 
 // User Search -- Atlas Search

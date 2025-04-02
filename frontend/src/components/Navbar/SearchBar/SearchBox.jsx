@@ -15,7 +15,7 @@ const SearchBox = () => {
   const fetchUsers = async (term) => {
     try {
       setLoading(true);
-      const { data } = await axios.get(`/api/v1/users?keyword=${term}`);
+      const { data } = await axios.get(`/api/v1/users?keyword=${encodeURIComponent(term)}`);
       setUsers(data.users || []);
       setLoading(false);
     } catch (error) {
@@ -26,13 +26,16 @@ const SearchBox = () => {
   };
 
   useEffect(() => {
-    if (searchTerm.trim().length > 0) {
-      fetchUsers(searchTerm);
-    } else {
-      setUsers([]);
-    }
+    const debounceTimer = setTimeout(() => {
+      if (searchTerm.trim().length > 0) {
+        fetchUsers(searchTerm);
+      } else {
+        setUsers([]);
+      }
+    }, 500); // Add debounce delay
 
     return () => {
+      clearTimeout(debounceTimer);
       setUsers([]);
     };
   }, [searchTerm]);
