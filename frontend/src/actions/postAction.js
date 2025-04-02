@@ -90,6 +90,7 @@ export const likePost = (postId) => async (dispatch) => {
       type: LIKE_UNLIKE_POST_SUCCESS,
       payload: data,
     });
+    return { success: true, data };
   } catch (error) {
     dispatch({
       type: LIKE_UNLIKE_POST_FAIL,
@@ -98,6 +99,7 @@ export const likePost = (postId) => async (dispatch) => {
           error.response.data.message :
           error.message,
     });
+    return { success: false, error: error.message };
   }
 };
 
@@ -122,6 +124,7 @@ export const addComment = (postId, comment) => async (dispatch) => {
       type: NEW_COMMENT_SUCCESS,
       payload: data.post,
     });
+    return { success: true, data };
   } catch (error) {
     dispatch({
       type: NEW_COMMENT_FAIL,
@@ -130,6 +133,7 @@ export const addComment = (postId, comment) => async (dispatch) => {
           error.response.data.message :
           error.message,
     });
+    return { success: false, error: error.message };
   }
 };
 

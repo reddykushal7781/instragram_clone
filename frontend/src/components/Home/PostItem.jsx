@@ -68,18 +68,44 @@ const PostItem = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLike = async () => {
-    setLiked(!liked);
-    await dispatch(likePost(_id));
-    const { data } = await axiosInstance.get(`/api/v1/post/detail/${_id}`);
-    setAllLikes(data?.post.likes);
+    try {
+      setLiked(!liked);
+      const result = await dispatch(likePost(_id));
+      if (result?.success) {
+        setIsLoading(true);
+        const { data } = await axiosInstance.get(`/api/v1/post/detail/${_id}`);
+        if (data?.post) {
+          setAllLikes(data.post.likes || []);
+        }
+      }
+    } catch (error) {
+      console.error("Error in handleLike:", error);
+      toast.error("Failed to update like status");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleComment = async (e) => {
     e.preventDefault();
-    await dispatch(addComment(_id, comment));
-    setComment("");
-    const { data } = await axiosInstance.get(`/api/v1/post/detail/${_id}`);
-    setAllComments(data?.post.comments);
+    if (!comment.trim()) return;
+
+    try {
+      const result = await dispatch(addComment(_id, comment));
+      if (result?.success) {
+        setComment("");
+        setIsLoading(true);
+        const { data } = await axiosInstance.get(`/api/v1/post/detail/${_id}`);
+        if (data?.post) {
+          setAllComments(data.post.comments || []);
+        }
+      }
+    } catch (error) {
+      console.error("Error in handleComment:", error);
+      toast.error("Failed to add comment");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSave = async () => {
