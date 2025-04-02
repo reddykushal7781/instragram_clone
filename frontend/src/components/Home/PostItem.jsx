@@ -22,11 +22,11 @@ import { toast } from "react-toastify";
 const PostItem = ({
   _id,
   caption,
-  likes,
-  comments,
+  likes = [],
+  comments = [],
   image,
   postedBy,
-  savedBy,
+  savedBy = [],
   createdAt,
   setUsersDialog,
   setUsersList,
@@ -37,17 +37,35 @@ const PostItem = ({
   const { user } = useSelector((state) => state.user);
   const [deleteModal, setDeleteModal] = useState(false);
 
-  const [allLikes, setAllLikes] = useState(likes);
-  const [allComments, setAllComments] = useState(comments);
-  const [allSavedBy, setAllSavedBy] = useState(savedBy);
+  useEffect(() => {
+    console.log('PostItem props:', {
+      _id,
+      caption,
+      likes,
+      comments,
+      image,
+      postedBy,
+      savedBy,
+      createdAt
+    });
+  }, [_id, caption, likes, comments, image, postedBy, savedBy, createdAt]);
+
+  if (!_id) {
+    console.error('PostItem: _id is undefined or null');
+    return null;
+  }
+
+  const [allLikes, setAllLikes] = useState(likes || []);
+  const [allComments, setAllComments] = useState(comments || []);
+  const [allSavedBy, setAllSavedBy] = useState(savedBy || []);
 
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [comment, setComment] = useState("");
   const [viewComment, setViewComment] = useState(false);
   const [showEmojis, setShowEmojis] = useState(false);
-
   const [likeEffect, setLikeEffect] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLike = async () => {
     setLiked(!liked);

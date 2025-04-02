@@ -53,6 +53,10 @@ const PostsContainer = () => {
   }, [dispatch, error]);
 
   useEffect(() => {
+    console.log('PostsContainer posts:', posts);
+  }, [posts]);
+
+  useEffect(() => {
     if (likeError) {
       toast.error(likeError);
       dispatch(clearErrors());
@@ -121,14 +125,17 @@ const PostsContainer = () => {
           loader={<SpinLoader />}
         >
           <div className="w-full h-full mt-1 sm:mt-6 flex flex-col space-y-4">
-            {posts?.map((post) => (
-              <PostItem
-                key={post._id}
-                {...post}
-                setUsersDialog={setUsersDialog}
-                setUsersList={setUsersList}
-              />
-            ))}
+            {posts?.map((post) => {
+              console.log('Rendering PostItem with post:', post);
+              return (
+                <PostItem
+                  key={post._id}
+                  {...post}
+                  setUsersDialog={setUsersDialog}
+                  setUsersList={setUsersList}
+                />
+              );
+            })}
           </div>
         </InfiniteScroll>
 
