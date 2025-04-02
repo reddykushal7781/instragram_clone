@@ -120,7 +120,7 @@ export const addComment = (postId, comment) => async (dispatch) => {
 
     dispatch({
       type: NEW_COMMENT_SUCCESS,
-      payload: data.success,
+      payload: data.post,
     });
   } catch (error) {
     dispatch({

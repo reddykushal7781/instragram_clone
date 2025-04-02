@@ -27,15 +27,17 @@ import moment from 'moment';
 const PostItem = ({
   _id,
   caption,
-  likes,
-  comments,
+  likes = [],
+  comments = [],
   image,
   postedBy,
-  savedBy,
+  savedBy = [],
   createdAt,
 }) => {
   const dispatch = useDispatch();
   const commentInput = useRef(null);
+  const { user } = useSelector((state) => state.user);
+  const { success: commentSuccess, post: updatedPost } = useSelector((state) => state.newComment);
 
   const [open, setOpen] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -43,31 +45,7 @@ const PostItem = ({
   const [comment, setComment] = useState('');
   const [showEmojis, setShowEmojis] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
-
   const [likeEffect, setLikeEffect] = useState(false);
-
-  const { user } = useSelector((state) => state.user);
-
-  const handleLike = () => {
-    setLiked(!liked);
-    dispatch(likePost(_id));
-  };
-
-  const handleComment = (e) => {
-    e.preventDefault();
-    dispatch(addComment(_id, comment));
-    setComment('');
-  };
-
-  const handleSave = () => {
-    setSaved(!saved);
-    dispatch(savePost(_id));
-  };
-
-  const handleDeletePost = () => {
-    dispatch(deletePost(_id));
-    setDeleteModal(false);
-  };
 
   useEffect(() => {
     if (likes && user) {
@@ -80,6 +58,35 @@ const PostItem = ({
       setSaved(savedBy.some((id) => id === user._id));
     }
   }, [savedBy, user]);
+
+  useEffect(() => {
+    if (commentSuccess && updatedPost && updatedPost._id === _id) {
+      setComment('');
+      setShowEmojis(false);
+    }
+  }, [commentSuccess, updatedPost, _id]);
+
+  const handleLike = () => {
+    setLiked(!liked);
+    dispatch(likePost(_id));
+  };
+
+  const handleComment = (e) => {
+    e.preventDefault();
+    if (comment.trim()) {
+      dispatch(addComment(_id, comment));
+    }
+  };
+
+  const handleSave = () => {
+    setSaved(!saved);
+    dispatch(savePost(_id));
+  };
+
+  const handleDeletePost = () => {
+    dispatch(deletePost(_id));
+    setDeleteModal(false);
+  };
 
   const closeDeleteModal = () => {
     setDeleteModal(false);
