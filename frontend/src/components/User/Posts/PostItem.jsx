@@ -45,12 +45,14 @@ const PostItem = ({
   const [showEmojis, setShowEmojis] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [likeEffect, setLikeEffect] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (likes && user) {
+    if (postedBy && likes && user) {
+      setIsLoading(false);
       setLiked(likes.some((id) => id === user._id));
     }
-  }, [likes, user]);
+  }, [postedBy, likes, user]);
 
   useEffect(() => {
     if (savedBy && user) {
@@ -96,6 +98,16 @@ const PostItem = ({
     handleLike();
   };
 
+  if (isLoading) {
+    return (
+      <div className="w-full h-32 sm:h-72 bg-gray-200 animate-pulse">
+        <div className="w-full h-full flex items-center justify-center">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div
@@ -111,10 +123,10 @@ const PostItem = ({
         />
         <div className="hidden group-hover:flex text-white absolute pointer-events-none gap-4">
           <span>
-            <FavoriteIcon /> {likes?.length || 0}
+            <FavoriteIcon /> {Array.isArray(likes) ? likes.length : 0}
           </span>
           <span>
-            <ModeCommentIcon /> {comments?.length || 0}
+            <ModeCommentIcon /> {Array.isArray(comments) ? comments.length : 0}
           </span>
         </div>
       </div>
@@ -211,7 +223,7 @@ const PostItem = ({
                 {caption}
               </p>
 
-              {comments?.map((c) => (
+              {Array.isArray(comments) && comments.map((c) => (
                 <div className="flex items-start space-x-1 mb-3" key={c._id}>
                   <Link to={`/${c.user?.username}`}>
                     <img
@@ -254,7 +266,7 @@ const PostItem = ({
 
                 {/* likes  */}
                 <span className="w-full font-semibold text-sm">
-                  {likes?.length || 0} likes
+                  {Array.isArray(likes) ? likes.length : 0} likes
                 </span>
 
                 {/* time */}
