@@ -21,21 +21,30 @@ const NewDialog = ({ open, onClose }) => {
   const { error, chat } = useSelector((state) => state.newChat);
 
   const fetchUsers = async (term) => {
-    setLoading(true);
-    const { data } = await axios.get(`/api/v1/users?keyword=${term}`);
-    setUsers(data.users.filter((u) => u._id !== self._id));
-    setLoading(false);
+    try {
+      setLoading(true);
+      const { data } = await axios.get(`/api/v1/users?keyword=${term}`);
+      const usersList = data.users || [];
+      setUsers(usersList.filter((u) => u._id !== self._id));
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      setUsers([]);
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     if (searchTerm.trim().length > 0) {
       fetchUsers(searchTerm);
+    } else {
+      setUsers([]);
     }
 
     return () => {
       setUsers([]);
     };
-  }, [searchTerm]);
+  }, [searchTerm, self._id]);
 
   const addToChat = (userId) => {
     dispatch(addNewChat(userId));
@@ -53,7 +62,7 @@ const NewDialog = ({ open, onClose }) => {
       dispatch({ type: NEW_CHAT_RESET });
       onClose();
     }
-  }, [dispatch, error, chat, navigate]);
+  }, [dispatch, error, chat, navigate, self._id]);
 
   return (
     <Dialog open={open} onClose={onClose}>
@@ -75,7 +84,6 @@ const NewDialog = ({ open, onClose }) => {
         </div>
 
         <div className="flex flex-col overflow-x-hidden h-96 w-full">
-
           {loading ?
             Array(8).fill('').map((el, i) => (
               <div className="flex items-center gap-2 py-2 px-4" key={i}>
@@ -101,10 +109,9 @@ const NewDialog = ({ open, onClose }) => {
               :
               <span className="text-gray-400 text-sm p-2">No accounts found.</span>
           }
-
         </div>
       </div>
-    </Dialog >
+    </Dialog>
   );
 };
 
