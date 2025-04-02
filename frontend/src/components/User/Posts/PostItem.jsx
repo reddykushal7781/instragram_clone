@@ -51,18 +51,18 @@ const PostItem = ({
   useEffect(() => {
     if (postedBy && likes && user) {
       setIsLoading(false);
-      setLiked(likes.some((id) => id === user._id));
+      setLiked(likes.some((id) => id === user?._id));
     }
   }, [postedBy, likes, user]);
 
   useEffect(() => {
     if (savedBy && user) {
-      setSaved(savedBy.some((id) => id === user._id));
+      setSaved(savedBy.some((id) => id === user?._id));
     }
   }, [savedBy, user]);
 
   useEffect(() => {
-    if (commentSuccess && updatedPost && updatedPost._id === _id) {
+    if (commentSuccess && updatedPost && updatedPost?._id === _id) {
       setComment('');
       setShowEmojis(false);
     }
