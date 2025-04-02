@@ -39,7 +39,7 @@ connectDatabase();
 // Serve static files from public directory
 app.use("/public", express.static(path.join(__dirname, "public")));
 
-// Development route
+
 app.get("/", (req, res) => {
   res.send("Server is Running! 🚀");
 });
@@ -52,10 +52,10 @@ const server = httpServer.listen(PORT, () => {
 // ============= socket.io ==============
 const io = new Server(server, {
   cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
+    origin: ["https://instagram-clone-one-virid.vercel.app", "http://localhost:5173"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
-    allowedHeaders: ["my-custom-header"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   },
   pingTimeout: 60000,
   transports: ["polling", "websocket"],
