@@ -14,7 +14,7 @@ import {
 } from "./SvgIcons";
 import { Picker } from "emoji-mart";
 import ScrollToBottom from "react-scroll-to-bottom";
-import axiosInstance from "../utils/axios";
+import axiosInstance from "../../utils/axios";
 import moment from "moment";
 import { Dialog } from "@mui/material";
 import { toast } from "react-toastify";
