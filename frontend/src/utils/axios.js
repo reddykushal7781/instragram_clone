@@ -31,7 +31,13 @@ axiosInstance.interceptors.request.use(
 
 // Add a response interceptor to handle errors
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // If the response contains a token, store it
+    if (response.data && response.data.token) {
+      localStorage.setItem('token', response.data.token);
+    }
+    return response;
+  },
   (error) => {
     // Handle 401 errors (unauthorized)
     if (error.response && error.response.status === 401) {

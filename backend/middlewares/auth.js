@@ -4,8 +4,13 @@ import User from "../models/userModel.js";
 import catchAsync from "./catchAsync.js";
 
 export const isAuthenticated = catchAsync(async (req, res, next) => {
-  // Get token from cookie
-  const token = req.cookies.token;
+  // Get token from cookie or Authorization header
+  let token = req.cookies.token;
+  
+  // If no token in cookie, check Authorization header
+  if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  }
 
   if (!token) {
     return res.status(401).json({ 

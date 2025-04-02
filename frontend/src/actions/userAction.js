@@ -113,8 +113,9 @@ export const loadUser = () => async (dispatch) => {
     // Check localStorage first
     const isAuthenticated = localStorage.getItem("isAuthenticated");
     const user = JSON.parse(localStorage.getItem("user"));
+    const token = localStorage.getItem("token");
 
-    if (isAuthenticated === "true" && user) {
+    if (isAuthenticated === "true" && user && token) {
       dispatch({
         type: LOAD_USER_SUCCESS,
         payload: user,
@@ -122,13 +123,18 @@ export const loadUser = () => async (dispatch) => {
       return;
     }
 
-    // If no localStorage data, try to fetch from server
+    // If no localStorage data or missing token, try to fetch from server
     const { data } = await axiosInstance.get("/api/v1/me", {
       withCredentials: true,
     });
 
     localStorage.setItem("isAuthenticated", "true");
     localStorage.setItem("user", JSON.stringify(data.user));
+    
+    // Store token if it's returned in the response
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+    }
 
     dispatch({
       type: LOAD_USER_SUCCESS,
@@ -138,6 +144,7 @@ export const loadUser = () => async (dispatch) => {
     // Clear localStorage and dispatch failure action
     localStorage.removeItem("isAuthenticated");
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
     dispatch({
       type: LOAD_USER_FAIL,
       payload: null,
