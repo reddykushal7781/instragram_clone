@@ -33,7 +33,25 @@ export const signupUser = catchAsync(async (req, res, next) => {
     avatar: avatarPath,
   });
 
-  sendCookie(newUser, 201, res);
+  // Generate token
+  const token = newUser.generateToken();
+  
+  // Set cookie
+  const options = {
+    expires: new Date(
+      Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
+  };
+  
+  res.status(201).cookie("token", token, options).json({
+    success: true,
+    user: newUser,
+    token // Include token in response body
+  });
 });
 
 // Login User
@@ -54,7 +72,25 @@ export const loginUser = catchAsync(async (req, res, next) => {
     return next(new ErrorHandler("Password doesn't match", 401));
   }
 
-  sendCookie(user, 201, res);
+  // Generate token
+  const token = user.generateToken();
+  
+  // Set cookie
+  const options = {
+    expires: new Date(
+      Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
+  };
+  
+  res.status(200).cookie("token", token, options).json({
+    success: true,
+    user,
+    token // Include token in response body
+  });
 });
 
 // Logout User
@@ -84,9 +120,24 @@ export const getAccountDetails = catchAsync(async (req, res, next) => {
     },
   });
 
-  res.status(200).json({
+  // Generate a new token to refresh the session
+  const token = user.generateToken();
+  
+  // Set cookie
+  const options = {
+    expires: new Date(
+      Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
+  };
+  
+  res.status(200).cookie("token", token, options).json({
     success: true,
     user,
+    token // Include token in response body
   });
 });
 

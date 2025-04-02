@@ -88,7 +88,12 @@ export const registerUser = (userData) => async (dispatch) => {
     const { data } = await axiosInstance.post("/api/v1/signup", userData, config);
 
     localStorage.setItem("isAuthenticated", "true");
-    localStorage.setItem("user", JSON.stringify(data.user))
+    localStorage.setItem("user", JSON.stringify(data.user));
+    
+    // Store token if it's returned in the response
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+    }
 
     dispatch({
       type: REGISTER_USER_SUCCESS,
