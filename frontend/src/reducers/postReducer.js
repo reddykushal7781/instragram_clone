@@ -119,7 +119,7 @@ export const likePostReducer = (state = {}, { type, payload }) => {
   }
 };
 
-export const newCommentReducer = (state = { post: {} }, { type, payload }) => {
+export const newCommentReducer = (state = {}, { type, payload }) => {
   switch (type) {
   case NEW_COMMENT_REQUEST:
     return {
@@ -129,8 +129,7 @@ export const newCommentReducer = (state = { post: {} }, { type, payload }) => {
   case NEW_COMMENT_SUCCESS:
     return {
       loading: false,
-      success: true,
-      post: payload,
+      success: payload,
     };
   case NEW_COMMENT_RESET:
     return {

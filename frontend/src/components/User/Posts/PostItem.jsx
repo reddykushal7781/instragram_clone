@@ -37,8 +37,14 @@ const PostItem = ({
   const dispatch = useDispatch();
   const commentInput = useRef(null);
   const { user } = useSelector((state) => state.user);
-  const { success: commentSuccess, post: updatedPost } = useSelector((state) => state.newComment);
   const { posts } = useSelector((state) => state.postOfFollowing);
+
+  // Get the latest post data from the posts array
+  const currentPost = posts.find(post => post._id === _id) || {
+    likes: [],
+    comments: [],
+    savedBy: []
+  };
 
   const [open, setOpen] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -47,13 +53,6 @@ const PostItem = ({
   const [showEmojis, setShowEmojis] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [likeEffect, setLikeEffect] = useState(false);
-
-  // Get the latest post data from the posts array
-  const currentPost = posts.find(post => post._id === _id) || {
-    likes: [],
-    comments: [],
-    savedBy: []
-  };
 
   useEffect(() => {
     if (currentPost.likes && user) {
@@ -67,13 +66,6 @@ const PostItem = ({
     }
   }, [currentPost.savedBy, user]);
 
-  useEffect(() => {
-    if (commentSuccess && updatedPost && updatedPost._id === _id) {
-      setComment('');
-      setShowEmojis(false);
-    }
-  }, [commentSuccess, updatedPost, _id]);
-
   const handleLike = () => {
     setLiked(!liked);
     dispatch(likePost(_id));
@@ -83,6 +75,7 @@ const PostItem = ({
     e.preventDefault();
     if (comment.trim()) {
       dispatch(addComment(_id, comment));
+      setComment('');
     }
   };
 
