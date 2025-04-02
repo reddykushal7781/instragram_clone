@@ -8,11 +8,20 @@ export const isAuthenticated = catchAsync(async (req, res, next) => {
   const token = req.cookies.token;
 
   if (!token) {
-    // return next();
-    return res.status(401).json({ success: false });
+    return res.status(401).json({ 
+      success: false,
+      message: "Please login to access this resource"
+    });
   }
 
-  const decodedData = jwt.verify(token, process.env.JWT_SECRET);
-  req.user = await User.findById(decodedData.id);
-  next();
+  try {
+    const decodedData = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = await User.findById(decodedData.id);
+    next();
+  } catch (error) {
+    return res.status(401).json({ 
+      success: false,
+      message: "Invalid or expired token. Please login again."
+    });
+  }
 });

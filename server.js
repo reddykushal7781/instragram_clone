@@ -39,7 +39,7 @@ connectDatabase();
 // Serve static files from public directory
 app.use("/public", express.static(path.join(__dirname, "public")));
 
-
+// Development route
 app.get("/", (req, res) => {
   res.send("Server is Running! 🚀");
 });

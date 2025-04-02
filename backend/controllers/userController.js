@@ -59,10 +59,15 @@ export const loginUser = catchAsync(async (req, res, next) => {
 
 // Logout User
 export const logoutUser = catchAsync(async (req, res, next) => {
-  res.cookie("token", null, {
+  const options = {
     expires: new Date(Date.now()),
     httpOnly: true,
-  });
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
+  };
+  
+  res.cookie("token", null, options);
 
   res.status(200).json({
     success: true,
