@@ -11,7 +11,25 @@ const axiosInstance = axios.create({
   }
 });
 
-// Add a request interceptor to handle errors
+// Add a request interceptor to handle authentication
+axiosInstance.interceptors.request.use(
+  (config) => {
+    // Get token from localStorage if it exists
+    const token = localStorage.getItem('token');
+    
+    // If token exists, add it to the Authorization header
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Add a response interceptor to handle errors
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -20,6 +38,7 @@ axiosInstance.interceptors.response.use(
       // Clear local storage
       localStorage.removeItem("isAuthenticated");
       localStorage.removeItem("user");
+      localStorage.removeItem("token");
       
       // Redirect to login page if not already there
       if (window.location.pathname !== '/login') {

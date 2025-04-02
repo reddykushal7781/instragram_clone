@@ -47,8 +47,14 @@ export const loginUser = (userId, password) => async (dispatch) => {
       config
     );
 
+    // Store user data and authentication status
     localStorage.setItem("isAuthenticated", "true");
     localStorage.setItem("user", JSON.stringify(data.user));
+    
+    // Store token if it's returned in the response
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+    }
 
     dispatch({
       type: LOGIN_USER_SUCCESS,
@@ -145,8 +151,10 @@ export const logoutUser = () => async (dispatch) => {
     await axiosInstance.get("/api/v1/logout",{ withCredentials: true });
     dispatch({ type: LOGOUT_USER_SUCCESS });
     
+    // Clear all authentication data
     localStorage.removeItem("isAuthenticated");
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
 
   } catch (error) {
     dispatch({
