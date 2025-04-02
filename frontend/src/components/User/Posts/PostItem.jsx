@@ -108,6 +108,9 @@ const PostItem = ({
     );
   }
 
+  const safeComments = Array.isArray(comments) ? comments : [];
+  const safeLikes = Array.isArray(likes) ? likes : [];
+
   return (
     <>
       <div
@@ -123,10 +126,10 @@ const PostItem = ({
         />
         <div className="hidden group-hover:flex text-white absolute pointer-events-none gap-4">
           <span>
-            <FavoriteIcon /> {Array.isArray(likes) ? likes.length : 0}
+            <FavoriteIcon /> {safeLikes.length}
           </span>
           <span>
-            <ModeCommentIcon /> {Array.isArray(comments) ? comments.length : 0}
+            <ModeCommentIcon /> {safeComments.length}
           </span>
         </div>
       </div>
@@ -223,7 +226,7 @@ const PostItem = ({
                 {caption}
               </p>
 
-              {Array.isArray(comments) && comments.map((c) => (
+              {safeComments.map((c) => (
                 <div className="flex items-start space-x-1 mb-3" key={c._id}>
                   <Link to={`/${c.user?.username}`}>
                     <img
@@ -266,7 +269,7 @@ const PostItem = ({
 
                 {/* likes  */}
                 <span className="w-full font-semibold text-sm">
-                  {Array.isArray(likes) ? likes.length : 0} likes
+                  {safeLikes.length} likes
                 </span>
 
                 {/* time */}
