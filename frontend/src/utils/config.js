@@ -4,12 +4,13 @@
 // Get hostname dynamically from browser
 const hostname = window.location.hostname;
 
-// For development, use port 4000 for backend
-const apiPort = 4000;
-const apiUrl = `http://${hostname}:${apiPort}`;
+// For production, use the deployed backend URL
+const apiUrl = hostname === 'localhost' || hostname === '127.0.0.1'
+  ? `http://${hostname}:4000`
+  : 'https://instagram-clone-z9by.onrender.com';
 
 // Socket configuration
-const socketUrl = `http://${hostname}:${apiPort}`;
+const socketUrl = apiUrl;
 const socketOptions = {
   transports: ['polling', 'websocket'],
   reconnection: true,
