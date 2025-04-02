@@ -11,4 +11,23 @@ const axiosInstance = axios.create({
   }
 });
 
+// Add a request interceptor to handle errors
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Handle 401 errors (unauthorized)
+    if (error.response && error.response.status === 401) {
+      // Clear local storage
+      localStorage.removeItem("isAuthenticated");
+      localStorage.removeItem("user");
+      
+      // Redirect to login page if not already there
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default axiosInstance; 

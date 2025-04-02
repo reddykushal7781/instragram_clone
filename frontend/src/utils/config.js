@@ -6,7 +6,7 @@ const hostname = window.location.hostname;
 
 // For production, use the deployed backend URL
 const apiUrl = hostname === 'localhost' || hostname === '127.0.0.1'
-  ? `http://${hostname}:4000`
+  ? `http://${hostname}:4001`
   : 'https://instagram-clone-z9by.onrender.com';
 
 // Socket configuration
@@ -18,7 +18,12 @@ const socketOptions = {
   reconnectionDelay: 1000,
   timeout: 20000,
   forceNew: true,
+  path: '/socket.io',
+  withCredentials: true
 };
+
+// Log the API URL for debugging
+console.log('API URL:', apiUrl);
 
 export default {
   API_URL: apiUrl,
