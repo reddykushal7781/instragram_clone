@@ -22,11 +22,11 @@ import { toast } from "react-toastify";
 const PostItem = ({
   _id,
   caption,
-  likes = [],
-  comments = [],
+  likes,
+  comments,
   image,
   postedBy,
-  savedBy = [],
+  savedBy,
   createdAt,
   setUsersDialog,
   setUsersList,
@@ -37,68 +37,38 @@ const PostItem = ({
   const { user } = useSelector((state) => state.user);
   const [deleteModal, setDeleteModal] = useState(false);
 
-  const [allLikes, setAllLikes] = useState(likes || []);
-  const [allComments, setAllComments] = useState(comments || []);
-  const [allSavedBy, setAllSavedBy] = useState(savedBy || []);
+  const [allLikes, setAllLikes] = useState(likes);
+  const [allComments, setAllComments] = useState(comments);
+  const [allSavedBy, setAllSavedBy] = useState(savedBy);
 
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [comment, setComment] = useState("");
   const [viewComment, setViewComment] = useState(false);
   const [showEmojis, setShowEmojis] = useState(false);
+
   const [likeEffect, setLikeEffect] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleLike = async () => {
-    try {
-      setLiked(!liked);
-      await dispatch(likePost(_id));
-      setIsLoading(true);
-      const { data } = await axios.get(`/api/v1/post/detail/${_id}`);
-      if (data && data.post) {
-        setAllLikes(data.post.likes || []);
-      }
-    } catch (error) {
-      console.error("Error fetching post details:", error);
-      toast.error("Failed to update like status");
-    } finally {
-      setIsLoading(false);
-    }
+    setLiked(!liked);
+    await dispatch(likePost(_id));
+    const { data } = await axios.get(`/api/v1/post/detail/${_id}`);
+    setAllLikes(data.post.likes);
   };
 
   const handleComment = async (e) => {
     e.preventDefault();
-    try {
-      await dispatch(addComment(_id, comment));
-      setComment("");
-      setIsLoading(true);
-      const { data } = await axios.get(`/api/v1/post/detail/${_id}`);
-      if (data && data.post) {
-        setAllComments(data.post.comments || []);
-      }
-    } catch (error) {
-      console.error("Error fetching post details:", error);
-      toast.error("Failed to add comment");
-    } finally {
-      setIsLoading(false);
-    }
+    await dispatch(addComment(_id, comment));
+    setComment("");
+    const { data } = await axios.get(`/api/v1/post/detail/${_id}`);
+    setAllComments(data.post.comments);
   };
 
   const handleSave = async () => {
-    try {
-      setSaved(!saved);
-      await dispatch(savePost(_id));
-      setIsLoading(true);
-      const { data } = await axios.get(`/api/v1/post/detail/${_id}`);
-      if (data && data.post) {
-        setAllSavedBy(data.post.savedBy || []);
-      }
-    } catch (error) {
-      console.error("Error fetching post details:", error);
-      toast.error("Failed to save post");
-    } finally {
-      setIsLoading(false);
-    }
+    setSaved(!saved);
+    await dispatch(savePost(_id));
+    const { data } = await axios.get(`/api/v1/post/detail/${_id}`);
+    setAllSavedBy(data.post.savedBy);
   };
 
   const handleDeletePost = () => {
@@ -127,20 +97,12 @@ const PostItem = ({
   };
 
   useEffect(() => {
-    if (allLikes && user) {
-      setLiked(allLikes.some((u) => u._id === user._id));
-    }
-  }, [allLikes, user]);
+    setLiked(allLikes.some((u) => u._id === user._id));
+  }, [allLikes]);
 
   useEffect(() => {
-    if (allSavedBy && user) {
-      setSaved(allSavedBy.some((id) => id === user._id));
-    }
-  }, [allSavedBy, user]);
-
-  // Ensure we have safe arrays to work with
-  const safeComments = Array.isArray(allComments) ? allComments : [];
-  const safeLikes = Array.isArray(allLikes) ? allLikes : [];
+    setSaved(allSavedBy.some((id) => id === user._id));
+  }, [allSavedBy]);
 
   return (
     <div className="flex flex-col border rounded bg-white relative">
@@ -216,7 +178,7 @@ const PostItem = ({
         {/* icons container */}
         <div className="flex items-center justify-between py-2">
           <div className="flex space-x-4">
-            <button onClick={handleLike} disabled={isLoading}>
+            <button onClick={handleLike}>
               {liked ? likeFill : likeIconOutline}
             </button>
             <button onClick={() => commentInput.current.focus()}>
@@ -224,7 +186,7 @@ const PostItem = ({
             </button>
             {shareIcon}
           </div>
-          <button onClick={handleSave} disabled={isLoading}>
+          <button onClick={handleSave}>
             {saved ? saveIconFill : saveIconOutline}
           </button>
         </div>
@@ -234,7 +196,7 @@ const PostItem = ({
           onClick={handleLikeModal}
           className="font-semibold text-sm cursor-pointer"
         >
-          {safeLikes.length} likes
+          {allLikes.length} likes
         </span>
 
         {/* comment */}
@@ -249,16 +211,16 @@ const PostItem = ({
         </div>
 
         {/* time */}
-        {safeComments.length > 0 ? (
+        {allComments.length > 0 ? (
           <span
             onClick={() => setViewComment(!viewComment)}
             className="text-[13px] text-gray-500 cursor-pointer"
           >
             {viewComment
               ? "Hide Comments"
-              : safeComments.length === 1
-              ? `View ${safeComments.length} Comment`
-              : `View All ${safeComments.length} Comments`}
+              : allComments.length === 1
+              ? `View ${allComments.length} Comment`
+              : `View All ${allComments.length} Comments`}
           </span>
         ) : (
           <span className="text-[13px] text-gray-500">No Comments Yet!</span>
@@ -269,7 +231,7 @@ const PostItem = ({
 
         {viewComment && (
           <ScrollToBottom className="w-full h-52 overflow-y-auto py-1">
-            {safeComments.map((c) => (
+            {allComments.map((c) => (
               <div className="flex items-start mb-2 space-x-2" key={c._id}>
                 <img
                   draggable="false"
@@ -327,7 +289,7 @@ const PostItem = ({
           className={`${
             comment.trim().length < 1 ? "text-blue-300" : "text-blue-600"
           } text-sm font-semibold`}
-          disabled={comment.trim().length < 1 || isLoading}
+          disabled={comment.trim().length < 1}
         >
           Post
         </button>

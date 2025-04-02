@@ -27,17 +27,15 @@ import moment from 'moment';
 const PostItem = ({
   _id,
   caption,
-  likes = [],
-  comments = [],
+  likes,
+  comments,
   image,
   postedBy,
-  savedBy = [],
+  savedBy,
   createdAt,
 }) => {
   const dispatch = useDispatch();
   const commentInput = useRef(null);
-  const { user } = useSelector((state) => state.user);
-  const { success: commentSuccess, post: updatedPost } = useSelector((state) => state.newComment);
 
   const [open, setOpen] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -45,28 +43,10 @@ const PostItem = ({
   const [comment, setComment] = useState('');
   const [showEmojis, setShowEmojis] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
+
   const [likeEffect, setLikeEffect] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    if (postedBy && likes && user) {
-      setIsLoading(false);
-      setLiked(likes?.some((id) => id === user?._id));
-    }
-  }, [postedBy, likes, user]);
-
-  useEffect(() => {
-    if (savedBy && user) {
-      setSaved(savedBy?.some((id) => id === user?._id));
-    }
-  }, [savedBy, user]);
-
-  useEffect(() => {
-    if (commentSuccess && updatedPost && updatedPost?._id === _id) {
-      setComment('');
-      setShowEmojis(false);
-    }
-  }, [commentSuccess, updatedPost, _id]);
+  const { user } = useSelector((state) => state.user);
 
   const handleLike = () => {
     setLiked(!liked);
@@ -75,9 +55,8 @@ const PostItem = ({
 
   const handleComment = (e) => {
     e.preventDefault();
-    if (comment.trim()) {
-      dispatch(addComment(_id, comment));
-    }
+    dispatch(addComment(_id, comment));
+    setComment('');
   };
 
   const handleSave = () => {
@@ -89,6 +68,18 @@ const PostItem = ({
     dispatch(deletePost(_id));
     setDeleteModal(false);
   };
+
+  useEffect(() => {
+    if (likes && user) {
+      setLiked(likes.some((id) => id === user._id));
+    }
+  }, [likes, user]);
+
+  useEffect(() => {
+    if (savedBy && user) {
+      setSaved(savedBy.some((id) => id === user._id));
+    }
+  }, [savedBy, user]);
 
   const closeDeleteModal = () => {
     setDeleteModal(false);
@@ -105,19 +96,6 @@ const PostItem = ({
     handleLike();
   };
 
-  if (isLoading) {
-    return (
-      <div className="w-full h-32 sm:h-72 bg-gray-200 animate-pulse">
-        <div className="w-full h-full flex items-center justify-center">
-          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      </div>
-    );
-  }
-
-  const safeComments = Array.isArray(comments) ? comments : [];
-  const safeLikes = Array.isArray(likes) ? likes : [];
-
   return (
     <>
       <div
@@ -133,10 +111,10 @@ const PostItem = ({
         />
         <div className="hidden group-hover:flex text-white absolute pointer-events-none gap-4">
           <span>
-            <FavoriteIcon /> {safeLikes.length}
+            <FavoriteIcon /> {likes?.length || 0}
           </span>
           <span>
-            <ModeCommentIcon /> {safeComments.length}
+            <ModeCommentIcon /> {comments?.length || 0}
           </span>
         </div>
       </div>
@@ -233,7 +211,7 @@ const PostItem = ({
                 {caption}
               </p>
 
-              {safeComments.map((c) => (
+              {comments?.map((c) => (
                 <div className="flex items-start space-x-1 mb-3" key={c._id}>
                   <Link to={`/${c.user?.username}`}>
                     <img
@@ -276,7 +254,7 @@ const PostItem = ({
 
                 {/* likes  */}
                 <span className="w-full font-semibold text-sm">
-                  {safeLikes.length} likes
+                  {likes?.length || 0} likes
                 </span>
 
                 {/* time */}
