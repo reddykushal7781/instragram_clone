@@ -31,25 +31,20 @@ axiosInstance.interceptors.request.use(
 
 // Add a response interceptor to handle errors
 axiosInstance.interceptors.response.use(
-  (response) => {
-    // If the response contains a token, store it
-    if (response.data && response.data.token) {
-      localStorage.setItem('token', response.data.token);
-    }
-    return response;
-  },
+  (response) => response,
   (error) => {
-    // Handle 401 errors (unauthorized)
-    if (error.response && error.response.status === 401) {
-      // Clear local storage
-      localStorage.removeItem("isAuthenticated");
-      localStorage.removeItem("user");
-      localStorage.removeItem("token");
-      
-      // Redirect to login page if not already there
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
-      }
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.error('Response Error:', error.response.data);
+      console.error('Response Status:', error.response.status);
+      console.error('Response Headers:', error.response.headers);
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.error('Request Error:', error.request);
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.error('Error:', error.message);
     }
     return Promise.reject(error);
   }

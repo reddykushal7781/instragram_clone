@@ -1,9 +1,9 @@
 import { ClickAwayListener } from '@mui/material';
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { searchIcon } from '../SvgIcons';
 import SearchUserItem from './SearchUserItem';
 import { toast } from 'react-toastify';
+import axiosInstance from '../../../utils/axios';
 
 const SearchBox = () => {
 
@@ -17,7 +17,7 @@ const SearchBox = () => {
     try {
       setLoading(true);
       console.log('Fetching users with term:', term);
-      const { data } = await axios.get(`/api/v1/users?keyword=${encodeURIComponent(term)}`);
+      const { data } = await axiosInstance.get(`/api/v1/users?keyword=${encodeURIComponent(term)}`);
       console.log('Search response:', data);
       
       if (data.success && Array.isArray(data.users)) {

@@ -1,5 +1,4 @@
 import Dialog from '@mui/material/Dialog';
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -7,9 +6,9 @@ import { NEW_CHAT_RESET } from '../../constants/chatConstants';
 import { toast } from 'react-toastify';
 import { addNewChat, clearErrors } from '../../actions/chatAction';
 import { Skeleton } from '@mui/material';
+import axiosInstance from '../../utils/axios';
 
 const NewDialog = ({ open, onClose }) => {
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -24,7 +23,7 @@ const NewDialog = ({ open, onClose }) => {
     try {
       setLoading(true);
       console.log('Fetching users with term:', term);
-      const { data } = await axios.get(`/api/v1/users?keyword=${encodeURIComponent(term)}`);
+      const { data } = await axiosInstance.get(`/api/v1/users?keyword=${encodeURIComponent(term)}`);
       console.log('Search response:', data);
       
       if (data.success && Array.isArray(data.users)) {
