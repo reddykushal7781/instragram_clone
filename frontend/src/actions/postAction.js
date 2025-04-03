@@ -90,7 +90,7 @@ export const likePost = (postId) => async (dispatch) => {
       type: LIKE_UNLIKE_POST_SUCCESS,
       payload: data,
     });
-    return { success: true, data };
+    return { success: true, post: data.post };
   } catch (error) {
     dispatch({
       type: LIKE_UNLIKE_POST_FAIL,
@@ -124,7 +124,7 @@ export const addComment = (postId, comment) => async (dispatch) => {
       type: NEW_COMMENT_SUCCESS,
       payload: data.post,
     });
-    return { success: true, data };
+    return { success: true, post: data.post };
   } catch (error) {
     dispatch({
       type: NEW_COMMENT_FAIL,

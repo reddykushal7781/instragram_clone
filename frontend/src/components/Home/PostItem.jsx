@@ -71,18 +71,12 @@ const PostItem = ({
     try {
       setLiked(!liked);
       const result = await dispatch(likePost(_id));
-      if (result?.success) {
-        setIsLoading(true);
-        const { data } = await axiosInstance.get(`/api/v1/post/detail/${_id}`);
-        if (data?.post) {
-          setAllLikes(data.post.likes || []);
-        }
+      if (result?.success && result?.post) {
+        setAllLikes(result.post.likes || []);
       }
     } catch (error) {
       console.error("Error in handleLike:", error);
       toast.error("Failed to update like status");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -92,19 +86,13 @@ const PostItem = ({
 
     try {
       const result = await dispatch(addComment(_id, comment));
-      if (result?.success) {
+      if (result?.success && result?.post) {
         setComment("");
-        setIsLoading(true);
-        const { data } = await axiosInstance.get(`/api/v1/post/detail/${_id}`);
-        if (data?.post) {
-          setAllComments(data.post.comments || []);
-        }
+        setAllComments(result.post.comments || []);
       }
     } catch (error) {
       console.error("Error in handleComment:", error);
       toast.error("Failed to add comment");
-    } finally {
-      setIsLoading(false);
     }
   };
 
