@@ -20,27 +20,27 @@ const PostContainer = ({ posts, id }) => {
   useEffect(() => {
     dispatch(getUserDetails(params.username));
     if (likeError) {
-      toast.error(likeError);
+      // toast.error(likeError);
       dispatch(clearErrors());
     }
     if (success) {
-      toast.success(message);
+      // toast.success(message);
       dispatch({ type: LIKE_UNLIKE_POST_RESET });
     }
     if (commentError) {
-      toast.error(commentError);
+      // toast.error(commentError);
       dispatch(clearErrors());
     }
     if (commentSuccess) {
-      toast.success('Comment Added');
+      // toast.success('Comment Added');
       dispatch({ type: NEW_COMMENT_RESET });
     }
     if (saveError) {
-      toast.error(saveError);
+      // toast.error(saveError);
       dispatch(clearErrors());
     }
     if (saveSuccess) {
-      toast.success(saveMessage);
+      // toast.success(saveMessage);
       dispatch({ type: SAVE_UNSAVE_POST_RESET });
     }
     if (deleteError) {
@@ -48,7 +48,7 @@ const PostContainer = ({ posts, id }) => {
       dispatch(clearErrors());
     }
     if (deleteSuccess) {
-      toast.success('Post Deleted');
+      // toast.success('Post Deleted');
       dispatch({ type: DELETE_POST_RESET });
     }
   }, [dispatch, success, likeError, message, commentError, commentSuccess, saveError, saveSuccess, saveMessage, deleteError, deleteSuccess]);
