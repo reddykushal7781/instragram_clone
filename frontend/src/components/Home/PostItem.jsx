@@ -70,14 +70,11 @@ const PostItem = ({
   const handleLike = async () => {
     try {
       setLiked(!liked);
-      const result = await dispatch(likePost(_id));
-      if (result?.success && result?.post) {
-        setAllLikes(result.post.likes || []);
-      }
+      await dispatch(likePost(_id));
+      const { data } = await axiosInstance.get(`/api/v1/post/detail/${_id}`);
+      setAllLikes(data?.post.likes);
     } catch (error) {
-      const errorMessage = error.response?.data?.message || error.message || "Failed to update like status";
-      console.log(errorMessage);
-      toast.error(errorMessage);
+      setLiked(!liked);
     }
   };
 
@@ -86,15 +83,12 @@ const PostItem = ({
     if (!comment.trim()) return;
 
     try {
-      const result = await dispatch(addComment(_id, comment));
-      if (result?.success && result?.post) {
-        setComment("");
-        setAllComments(result.post.comments || []);
-      }
+      await dispatch(addComment(_id, comment));
+      setComment("");
+      const { data } = await axiosInstance.get(`/api/v1/post/detail/${_id}`);
+      setAllComments(data?.post.comments);
     } catch (error) {
-      const errorMessage = error.response?.data?.message || error.message || "Failed to add comment";
-      console.log(errorMessage);
-      toast.error(errorMessage);
+      // Error will be handled by PostsContainer
     }
   };
 
@@ -131,12 +125,16 @@ const PostItem = ({
   };
 
   useEffect(() => {
-    setLiked(allLikes.some((u) => u._id === user._id));
-  }, [allLikes]);
+    if (allLikes && user) {
+      setLiked(allLikes.some((u) => u._id === user._id));
+    }
+  }, [allLikes, user]);
 
   useEffect(() => {
-    setSaved(allSavedBy.some((id) => id === user._id));
-  }, [allSavedBy]);
+    if (allSavedBy && user) {
+      setSaved(allSavedBy.some((id) => id === user._id));
+    }
+  }, [allSavedBy, user]);
 
   return (
     <div className="flex flex-col border rounded bg-white relative">

@@ -15,6 +15,7 @@ import StoriesContainer from './StoriesContainer';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import SpinLoader from '../Layouts/SpinLoader';
 import SkeletonPost from '../Layouts/SkeletonPost';
+import Loader from '../Layouts/Loader';
 
 const PostsContainer = () => {
   const dispatch = useDispatch();
@@ -45,9 +46,7 @@ const PostsContainer = () => {
 
   useEffect(() => {
     if (error) {
-      const errorMessage = error.response?.data?.message || error.message || "Failed to load posts";
-      console.log(errorMessage);
-      toast.error(errorMessage);
+      toast.error(error);
       dispatch(clearErrors());
     }
     dispatch(getPostsOfFollowing());
@@ -56,44 +55,35 @@ const PostsContainer = () => {
 
   useEffect(() => {
     if (likeError) {
-      const errorMessage = likeError.response?.data?.message || likeError.message || "Failed to like post";
-      console.log(errorMessage);
-      toast.error(errorMessage);
+      toast.error(likeError);
       dispatch(clearErrors());
     }
     if (success) {
-      const successMessage = message || "Post liked successfully";
-      toast.success(successMessage);
+      toast.success(message);
       dispatch({ type: LIKE_UNLIKE_POST_RESET });
     }
     if (commentError) {
-      const errorMessage = commentError.response?.data?.message || commentError.message || "Failed to add comment";
-      console.log(errorMessage);
-      toast.error(errorMessage);
+      toast.error(commentError);
       dispatch(clearErrors());
     }
     if (commentSuccess) {
-      toast.success("Comment added successfully");
+      toast.success('Comment Added');
       dispatch({ type: NEW_COMMENT_RESET });
     }
     if (saveError) {
-      const errorMessage = saveError.response?.data?.message || saveError.message || "Failed to save post";
-      console.log(errorMessage);
-      toast.error(errorMessage);
+      toast.error(saveError);
       dispatch(clearErrors());
     }
     if (saveSuccess) {
-      const successMessage = saveMessage || "Post saved successfully";
-      toast.success(successMessage);
+      toast.success(saveMessage);
       dispatch({ type: SAVE_UNSAVE_POST_RESET });
     }
     if (deleteError) {
-      const errorMessage = deleteError.response?.data?.message || deleteError.message || "Failed to delete post";
-      toast.error(errorMessage);
+      toast.error(deleteError);
       dispatch(clearErrors());
     }
     if (deleteSuccess) {
-      toast.success("Post deleted successfully");
+      toast.success('Post Deleted');
       dispatch({ type: DELETE_POST_RESET });
       dispatch(getPostsOfFollowing(1));
     }
@@ -117,41 +107,41 @@ const PostsContainer = () => {
   };
 
   return (
-    <div className="flex flex-col items-center w-full">
-      <StoriesContainer />
-      {loading ? (
-        <div className="flex flex-col items-center w-full">
-          {[1, 2, 3].map((item) => (
-            <SkeletonPost key={item} />
-          ))}
-        </div>
-      ) : (
+    <>
+      <div className="flex flex-col w-full lg:w-2/3 sm:mt-6 sm:px-8 mb-8">
+        <StoriesContainer />
+
+        {loading &&
+          Array(5)
+            .fill('')
+            .map((el, i) => <SkeletonPost key={i} />)}
+
         <InfiniteScroll
-          dataLength={posts?.length || 0}
+          dataLength={posts.length}
           next={fetchMorePosts}
-          hasMore={true}
-          loader={
-            <div className="flex justify-center my-5">
-              <SpinLoader />
-            </div>
-          }
+          hasMore={posts.length !== totalPosts}
+          loader={<SpinLoader />}
         >
-          {posts?.map((post) => (
-            <PostItem
-              key={post._id}
-              {...post}
-              setUsersDialog={setUsersDialog}
-              setUsersList={setUsersList}
-            />
-          ))}
+          <div className="w-full h-full mt-1 sm:mt-6 flex flex-col space-y-4">
+            {posts?.map((post) => (
+              <PostItem
+                key={post._id}
+                {...post}
+                setUsersDialog={setUsersDialog}
+                setUsersList={setUsersList}
+              />
+            ))}
+          </div>
         </InfiniteScroll>
-      )}
-      <UsersDialog
-        open={usersDialog}
-        setOpen={setUsersDialog}
-        users={usersList}
-      />
-    </div>
+
+        <UsersDialog
+          title="Likes"
+          open={usersDialog}
+          onClose={handleClose}
+          usersList={usersList}
+        />
+      </div>
+    </>
   );
 };
 
