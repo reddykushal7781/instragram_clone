@@ -45,8 +45,8 @@ const PostsContainer = () => {
 
   useEffect(() => {
     if (error) {
-      console.log(error);
-      toast.error(error);
+      // console.log(error);
+      // toast.error(error);
       dispatch(clearErrors());
     }
     dispatch(getPostsOfFollowing());
@@ -55,38 +55,38 @@ const PostsContainer = () => {
 
   useEffect(() => {
     if (likeError) {
-      console.log(likeError);
-      toast.error(likeError);
+      // console.log(likeError);
+      // toast.error(likeError);
       dispatch(clearErrors());
     }
     if (success) {
-      toast.success(message);
+      // toast.success(message);
       dispatch({ type: LIKE_UNLIKE_POST_RESET });
     }
     if (commentError) {
       console.log(commentError);
-      toast.error(commentError);
+      // toast.error(commentError);
       dispatch(clearErrors());
     }
     if (commentSuccess) {
-      toast.success('Comment Added');
+      // toast.success('Comment Added');
       dispatch({ type: NEW_COMMENT_RESET });
     }
     if (saveError) {
       console.log(saveError);
-      toast.error(saveError);
+      // toast.error(saveError);
       dispatch(clearErrors());
     }
     if (saveSuccess) {
-      toast.success(saveMessage);
+      // toast.success(saveMessage);
       dispatch({ type: SAVE_UNSAVE_POST_RESET });
     }
     if (deleteError) {
-      toast.error(deleteError);
+      // toast.error(deleteError);
       dispatch(clearErrors());
     }
     if (deleteSuccess) {
-      toast.success('Post Deleted');
+      // toast.success('Post Deleted');
       dispatch({ type: DELETE_POST_RESET });
       dispatch(getPostsOfFollowing(1));
     }
