@@ -15,7 +15,6 @@ import StoriesContainer from './StoriesContainer';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import SpinLoader from '../Layouts/SpinLoader';
 import SkeletonPost from '../Layouts/SkeletonPost';
-import Loader from '../Layouts/Loader';
 
 const PostsContainer = () => {
   const dispatch = useDispatch();
@@ -46,6 +45,7 @@ const PostsContainer = () => {
 
   useEffect(() => {
     if (error) {
+      console.log(error);
       toast.error(error);
       dispatch(clearErrors());
     }
@@ -55,6 +55,7 @@ const PostsContainer = () => {
 
   useEffect(() => {
     if (likeError) {
+      console.log(likeError);
       toast.error(likeError);
       dispatch(clearErrors());
     }
@@ -63,6 +64,7 @@ const PostsContainer = () => {
       dispatch({ type: LIKE_UNLIKE_POST_RESET });
     }
     if (commentError) {
+      console.log(commentError);
       toast.error(commentError);
       dispatch(clearErrors());
     }
@@ -71,6 +73,7 @@ const PostsContainer = () => {
       dispatch({ type: NEW_COMMENT_RESET });
     }
     if (saveError) {
+      console.log(saveError);
       toast.error(saveError);
       dispatch(clearErrors());
     }
@@ -103,7 +106,7 @@ const PostsContainer = () => {
 
   const fetchMorePosts = () => {
     setPage((prev) => prev + 1);
-    dispatch(getPostsOfFollowing(page + 1));
+    dispatch(getPostsOfFollowing(page));
   };
 
   return (
@@ -115,7 +118,6 @@ const PostsContainer = () => {
           Array(5)
             .fill('')
             .map((el, i) => <SkeletonPost key={i} />)}
-
         <InfiniteScroll
           dataLength={posts.length}
           next={fetchMorePosts}

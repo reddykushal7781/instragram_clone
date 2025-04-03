@@ -22,11 +22,11 @@ import { toast } from "react-toastify";
 const PostItem = ({
   _id,
   caption,
-  likes = [],
-  comments = [],
+  likes,
+  comments,
   image,
   postedBy,
-  savedBy = [],
+  savedBy,
   createdAt,
   setUsersDialog,
   setUsersList,
@@ -37,66 +37,38 @@ const PostItem = ({
   const { user } = useSelector((state) => state.user);
   const [deleteModal, setDeleteModal] = useState(false);
 
-  useEffect(() => {
-    console.log('PostItem props:', {
-      _id,
-      caption,
-      likes,
-      comments,
-      image,
-      postedBy,
-      savedBy,
-      createdAt
-    });
-  }, [_id, caption, likes, comments, image, postedBy, savedBy, createdAt]);
-
-  if (!_id) {
-    console.error('PostItem: _id is undefined or null');
-    return null;
-  }
-
-  const [allLikes, setAllLikes] = useState(likes || []);
-  const [allComments, setAllComments] = useState(comments || []);
-  const [allSavedBy, setAllSavedBy] = useState(savedBy || []);
+  const [allLikes, setAllLikes] = useState(likes);
+  const [allComments, setAllComments] = useState(comments);
+  const [allSavedBy, setAllSavedBy] = useState(savedBy);
 
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [comment, setComment] = useState("");
   const [viewComment, setViewComment] = useState(false);
   const [showEmojis, setShowEmojis] = useState(false);
+
   const [likeEffect, setLikeEffect] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleLike = async () => {
-    try {
-      setLiked(!liked);
-      await dispatch(likePost(_id));
-      const { data } = await axiosInstance.get(`/api/v1/post/detail/${_id}`);
-      setAllLikes(data?.post.likes);
-    } catch (error) {
-      setLiked(!liked);
-    }
+    setLiked(!liked);
+    await dispatch(likePost(_id));
+    const { data } = await axiosInstance.get(`/api/v1/post/detail/${_id}`);
+    setAllLikes(data.post.likes);
   };
 
   const handleComment = async (e) => {
     e.preventDefault();
-    if (!comment.trim()) return;
-
-    try {
-      await dispatch(addComment(_id, comment));
-      setComment("");
-      const { data } = await axiosInstance.get(`/api/v1/post/detail/${_id}`);
-      setAllComments(data?.post.comments);
-    } catch (error) {
-      // Error will be handled by PostsContainer
-    }
+    await dispatch(addComment(_id, comment));
+    setComment("");
+    const { data } = await axiosInstance.get(`/api/v1/post/detail/${_id}`);
+    setAllComments(data.post.comments);
   };
 
   const handleSave = async () => {
     setSaved(!saved);
     await dispatch(savePost(_id));
     const { data } = await axiosInstance.get(`/api/v1/post/detail/${_id}`);
-    setAllSavedBy(data?.post.savedBy);
+    setAllSavedBy(data.post.savedBy);
   };
 
   const handleDeletePost = () => {
@@ -125,16 +97,12 @@ const PostItem = ({
   };
 
   useEffect(() => {
-    if (allLikes && user) {
-      setLiked(allLikes.some((u) => u._id === user._id));
-    }
-  }, [allLikes, user]);
+    setLiked(allLikes.some((u) => u._id === user._id));
+  }, [allLikes]);
 
   useEffect(() => {
-    if (allSavedBy && user) {
-      setSaved(allSavedBy.some((id) => id === user._id));
-    }
-  }, [allSavedBy, user]);
+    setSaved(allSavedBy.some((id) => id === user._id));
+  }, [allSavedBy]);
 
   return (
     <div className="flex flex-col border rounded bg-white relative">
