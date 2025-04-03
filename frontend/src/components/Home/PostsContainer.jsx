@@ -15,6 +15,7 @@ import StoriesContainer from './StoriesContainer';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import SpinLoader from '../Layouts/SpinLoader';
 import SkeletonPost from '../Layouts/SkeletonPost';
+import Loader from '../Layouts/Loader';
 
 const PostsContainer = () => {
   const dispatch = useDispatch();
@@ -45,7 +46,9 @@ const PostsContainer = () => {
 
   useEffect(() => {
     if (error) {
-      toast.error(error);
+      const errorMessage = error.response?.data?.message || error.message || "Failed to load posts";
+      console.log(errorMessage);
+      toast.error(errorMessage);
       dispatch(clearErrors());
     }
     dispatch(getPostsOfFollowing());
@@ -53,40 +56,45 @@ const PostsContainer = () => {
   }, [dispatch, error]);
 
   useEffect(() => {
-    console.log('PostsContainer posts:', posts);
-  }, [posts]);
-
-  useEffect(() => {
     if (likeError) {
-      toast.error(likeError);
+      const errorMessage = likeError.response?.data?.message || likeError.message || "Failed to like post";
+      console.log(errorMessage);
+      toast.error(errorMessage);
       dispatch(clearErrors());
     }
     if (success) {
-      toast.success(message);
+      const successMessage = message || "Post liked successfully";
+      toast.success(successMessage);
       dispatch({ type: LIKE_UNLIKE_POST_RESET });
     }
     if (commentError) {
-      toast.error(commentError);
+      const errorMessage = commentError.response?.data?.message || commentError.message || "Failed to add comment";
+      console.log(errorMessage);
+      toast.error(errorMessage);
       dispatch(clearErrors());
     }
     if (commentSuccess) {
-      toast.success('Comment Added');
+      toast.success("Comment added successfully");
       dispatch({ type: NEW_COMMENT_RESET });
     }
     if (saveError) {
-      toast.error(saveError);
+      const errorMessage = saveError.response?.data?.message || saveError.message || "Failed to save post";
+      console.log(errorMessage);
+      toast.error(errorMessage);
       dispatch(clearErrors());
     }
     if (saveSuccess) {
-      toast.success(saveMessage);
+      const successMessage = saveMessage || "Post saved successfully";
+      toast.success(successMessage);
       dispatch({ type: SAVE_UNSAVE_POST_RESET });
     }
     if (deleteError) {
-      toast.error(deleteError);
+      const errorMessage = deleteError.response?.data?.message || deleteError.message || "Failed to delete post";
+      toast.error(errorMessage);
       dispatch(clearErrors());
     }
     if (deleteSuccess) {
-      toast.success('Post Deleted');
+      toast.success("Post deleted successfully");
       dispatch({ type: DELETE_POST_RESET });
       dispatch(getPostsOfFollowing(1));
     }
@@ -106,47 +114,45 @@ const PostsContainer = () => {
 
   const fetchMorePosts = () => {
     setPage((prev) => prev + 1);
-    dispatch(getPostsOfFollowing(page));
+    dispatch(getPostsOfFollowing(page + 1));
   };
 
   return (
-    <>
-      <div className="flex flex-col w-full lg:w-2/3 sm:mt-6 sm:px-8 mb-8">
-        <StoriesContainer />
-
-        {loading &&
-          Array(5)
-            .fill('')
-            .map((el, i) => <SkeletonPost key={i} />)}
+    <div className="flex flex-col items-center w-full">
+      <StoriesContainer />
+      {loading ? (
+        <div className="flex flex-col items-center w-full">
+          {[1, 2, 3].map((item) => (
+            <SkeletonPost key={item} />
+          ))}
+        </div>
+      ) : (
         <InfiniteScroll
-          dataLength={posts.length}
+          dataLength={posts?.length || 0}
           next={fetchMorePosts}
-          hasMore={posts.length !== totalPosts}
-          loader={<SpinLoader />}
+          hasMore={true}
+          loader={
+            <div className="flex justify-center my-5">
+              <Loader />
+            </div>
+          }
         >
-          <div className="w-full h-full mt-1 sm:mt-6 flex flex-col space-y-4">
-            {posts?.map((post) => {
-              console.log('Rendering PostItem with post:', post);
-              return (
-                <PostItem
-                  key={post._id}
-                  {...post}
-                  setUsersDialog={setUsersDialog}
-                  setUsersList={setUsersList}
-                />
-              );
-            })}
-          </div>
+          {posts?.map((post) => (
+            <PostItem
+              key={post._id}
+              {...post}
+              setUsersDialog={setUsersDialog}
+              setUsersList={setUsersList}
+            />
+          ))}
         </InfiniteScroll>
-
-        <UsersDialog
-          title="Likes"
-          open={usersDialog}
-          onClose={handleClose}
-          usersList={usersList}
-        />
-      </div>
-    </>
+      )}
+      <UsersDialog
+        open={usersDialog}
+        setOpen={setUsersDialog}
+        users={usersList}
+      />
+    </div>
   );
 };
 

@@ -75,8 +75,9 @@ const PostItem = ({
         setAllLikes(result.post.likes || []);
       }
     } catch (error) {
-      console.error("Error in handleLike:", error);
-      toast.error("Failed to update like status");
+      const errorMessage = error.response?.data?.message || error.message || "Failed to update like status";
+      console.log(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -91,8 +92,9 @@ const PostItem = ({
         setAllComments(result.post.comments || []);
       }
     } catch (error) {
-      console.error("Error in handleComment:", error);
-      toast.error("Failed to add comment");
+      const errorMessage = error.response?.data?.message || error.message || "Failed to add comment";
+      console.log(errorMessage);
+      toast.error(errorMessage);
     }
   };
 

@@ -35,56 +35,50 @@ export const newPostReducer = (state = { post: {} }, { type, payload }) => {
   }
 };
 
-export const postOfFollowingReducer = (state = { posts: [] }, { type, payload }) => {
-  switch (type) {
-  case POST_FOLLOWING_REQUEST:
-    return {
-      ...state,
-      loading: true,
-    };
-  case POST_FOLLOWING_SUCCESS:
-    return {
-      loading: false,
-      posts: [...state.posts, ...payload.posts],
-      totalPosts: payload.totalPosts,
-    };
-  case LIKE_UNLIKE_POST_SUCCESS:
-    return {
-      ...state,
-      posts: state.posts.map(post => 
-        post._id === payload.post._id 
-          ? { ...post, likes: payload.post.likes } 
-          : post
-      ),
-    };
-  case NEW_COMMENT_SUCCESS:
-    return {
-      ...state,
-      posts: state.posts.map(post => 
-        post._id === payload._id 
-          ? { ...post, comments: payload.comments } 
-          : post
-      ),
-    };
-  case POST_FOLLOWING_RESET:
-    return {
-      ...state,
-      posts: [],
-      totalPosts: 0,
-    };
-  case POST_FOLLOWING_FAIL:
-    return {
-      ...state,
-      loading: false,
-      error: payload,
-    };
-  case CLEAR_ERRORS:
-    return {
-      ...state,
-      error: null,
-    };
-  default:
-    return state;
+export const postOfFollowingReducer = (state = { posts: [] }, action) => {
+  switch (action.type) {
+    case POST_FOLLOWING_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+    case POST_FOLLOWING_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        posts: action.payload.posts,
+        totalPosts: action.payload.totalPosts,
+      };
+    case POST_FOLLOWING_FAIL:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case POST_FOLLOWING_RESET:
+      return {
+        posts: [],
+      };
+    case LIKE_UNLIKE_POST_SUCCESS:
+      return {
+        ...state,
+        posts: state.posts.map((post) =>
+          post._id === action.payload.post._id
+            ? { ...post, likes: action.payload.post.likes }
+            : post
+        ),
+      };
+    case NEW_COMMENT_SUCCESS:
+      return {
+        ...state,
+        posts: state.posts.map((post) =>
+          post._id === action.payload._id
+            ? { ...post, comments: action.payload.comments }
+            : post
+        ),
+      };
+    default:
+      return state;
   }
 };
 
