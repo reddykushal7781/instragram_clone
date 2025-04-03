@@ -15,7 +15,6 @@ import StoriesContainer from './StoriesContainer';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import SpinLoader from '../Layouts/SpinLoader';
 import SkeletonPost from '../Layouts/SkeletonPost';
-import Loader from '../Layouts/Loader';
 
 const PostsContainer = () => {
   const dispatch = useDispatch();
@@ -133,7 +132,7 @@ const PostsContainer = () => {
           hasMore={true}
           loader={
             <div className="flex justify-center my-5">
-              <Loader />
+              <SpinLoader />
             </div>
           }
         >
