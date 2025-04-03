@@ -135,6 +135,7 @@ const UpdateProfile = () => {
             placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            disabled
             required
           />
         </div>
