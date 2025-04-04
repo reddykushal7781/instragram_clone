@@ -52,7 +52,7 @@ const server = httpServer.listen(PORT, () => {
 // ============= socket.io ==============
 const io = new Server(server, {
   cors: {
-    origin: ["https://instagram-clone-one-virid.vercel.app", "http://localhost:5173"],
+    origin: ["https://instagram-clone-one-virid.vercel.app", "http://localhost:5173", "http://localhost:3000"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],

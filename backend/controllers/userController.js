@@ -63,13 +63,13 @@ export const loginUser = catchAsync(async (req, res, next) => {
   }).select("+password");
 
   if (!user) {
-    return next(new ErrorHandler("User doesn't exist", 401));
+    return next(new ErrorHandler("Invalid User or Password", 401));
   }
 
   const isPasswordMatched = await user.comparePassword(password);
 
   if (!isPasswordMatched) {
-    return next(new ErrorHandler("Password doesn't match", 401));
+    return next(new ErrorHandler("Invalid User or Password", 401));
   }
 
   // Generate token

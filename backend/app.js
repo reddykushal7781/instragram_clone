@@ -20,7 +20,7 @@ const app = express();
 
 // Configure CORS
 app.use(cors({
-  origin: ["https://instagram-clone-one-virid.vercel.app", "http://localhost:5173","https://instagram-clone-z9by.onrender.com"],
+  origin: ["https://instagram-clone-one-virid.vercel.app", "http://localhost:3000","https://instagram-clone-z9by.onrender.com"],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "Accept"]

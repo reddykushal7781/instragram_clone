@@ -104,6 +104,7 @@ const SignUp = () => {
               onChange={handleDataChange}
               required
               size="small"
+              inputProps={{ maxLength: 40 }}
             />
             <TextField
               fullWidth
@@ -113,6 +114,7 @@ const SignUp = () => {
               onChange={handleDataChange}
               required
               size="small"
+              inputProps={{ maxLength: 40 }}
             />
             <TextField
               label="Username"
@@ -123,6 +125,7 @@ const SignUp = () => {
               size="small"
               required
               fullWidth
+              inputProps={{ maxLength: 20 }}
             />
             <TextField
               label="Password"
@@ -133,6 +136,7 @@ const SignUp = () => {
               required
               size="small"
               fullWidth
+              inputProps={{ maxLength: 25 }}
             />
             <div className="flex w-full justify-between gap-3 items-center">
               <Avatar

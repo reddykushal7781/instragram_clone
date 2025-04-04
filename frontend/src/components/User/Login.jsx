@@ -31,7 +31,7 @@ const Login = () => {
   useEffect(() => {
     if (error) {
       // Only show error toast for invalid credentials
-      if (error.includes("Password doesn't match") || error.includes("User doesn't exist")) {
+      if (error.includes("Invalid User or Password")) {
         toast.error(error);
       }
       dispatch(clearErrors());
