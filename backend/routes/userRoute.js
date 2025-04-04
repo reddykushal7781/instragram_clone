@@ -10,6 +10,8 @@ import {
   updatePassword,
   updateProfile,
   getAllUsers,
+  verifyEmail,
+  resendVerificationEmail,
 } from "../controllers/userController.js";
 import { isAuthenticated } from "../middlewares/auth.js";
 import { uploadAvatar } from "../utils/awsFunctions.js";
@@ -22,6 +24,10 @@ const avatarUploader = uploadAvatar();
 router.route("/signup").post(avatarUploader.single("avatar"), signupUser);
 router.route("/login").post(loginUser);
 router.route("/logout").get(logoutUser);
+
+// Email verification routes
+router.route("/verify-email").post(verifyEmail);
+router.route("/resend-verification").post(resendVerificationEmail);
 
 router.route("/me").get(isAuthenticated, getUserDetails);
 

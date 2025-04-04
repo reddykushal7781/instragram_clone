@@ -25,6 +25,18 @@ const userSchema = new mongoose.Schema({
     minlength: [6, "Password must be of minimum 6 characters"],
     select: false,
   },
+  isEmailVerified: {
+    type: Boolean,
+    default: false,
+  },
+  verificationOTP: {
+    type: String,
+    select: false,
+  },
+  verificationOTPExpires: {
+    type: Date,
+    select: false,
+  },
   avatar: {
     type: String,
   },
@@ -62,6 +74,13 @@ userSchema.pre("save", async function (next) {
   if (this.isModified("password")) {
     this.password = await bcrypt.hash(this.password, 10);
   }
+  
+  // Generate OTP for new users
+  if (this.isNew && !this.isEmailVerified) {
+    this.verificationOTP = Math.floor(100000 + Math.random() * 900000).toString();
+    this.verificationOTPExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+  }
+  
   next();
 });
 
