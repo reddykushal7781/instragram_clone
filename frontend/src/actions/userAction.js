@@ -87,6 +87,44 @@ export const registerUser = (userData) => async (dispatch) => {
 
     const { data } = await axiosInstance.post("/api/v1/signup", userData, config);
 
+    // Don't set authentication status yet, wait for email verification
+    dispatch({
+      type: REGISTER_USER_SUCCESS,
+      payload: data,
+    });
+
+    return data;
+  } catch (error) {
+    dispatch({
+      type: REGISTER_USER_FAIL,
+      payload:
+        error.response && error.response.data
+          ? error.response.data.message
+          : error.message,
+    });
+    throw error;
+  }
+};
+
+// Verify Email
+export const verifyEmail = (userId, otp) => async (dispatch) => {
+  try {
+    dispatch({ type: LOGIN_USER_REQUEST });
+
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true
+    };
+
+    const { data } = await axiosInstance.post(
+      "/api/v1/verify-email",
+      { userId, otp },
+      config
+    );
+
+    // Store user data and authentication status after verification
     localStorage.setItem("isAuthenticated", "true");
     localStorage.setItem("user", JSON.stringify(data.user));
     
@@ -96,17 +134,41 @@ export const registerUser = (userData) => async (dispatch) => {
     }
 
     dispatch({
-      type: REGISTER_USER_SUCCESS,
+      type: LOGIN_USER_SUCCESS,
       payload: data.user,
     });
+
+    return data.user;
   } catch (error) {
     dispatch({
-      type: REGISTER_USER_FAIL,
+      type: LOGIN_USER_FAIL,
       payload:
         error.response && error.response.data
           ? error.response.data.message
           : error.message,
     });
+    throw error;
+  }
+};
+
+// Resend Verification Email
+export const resendVerificationEmail = (userId) => async (dispatch) => {
+  try {
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    const { data } = await axiosInstance.post(
+      "/api/v1/resend-verification",
+      { userId },
+      config
+    );
+
+    return data;
+  } catch (error) {
+    throw error;
   }
 };
 
