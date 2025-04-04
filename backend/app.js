@@ -2,6 +2,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import errorMiddleware from "./middlewares/error.js";
 import dotenv from "dotenv";
+import config from "./config/config.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import cors from "cors";
@@ -13,8 +14,8 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, "config/config.env") });
 
 console.log("App.js - Loading environment variables");
-console.log("AWS_BUCKET_NAME:", process.env.AWS_BUCKET_NAME);
-console.log("AWS_BUCKET_REGION:", process.env.AWS_BUCKET_REGION);
+console.log("AWS_BUCKET_NAME:", config.AWS_BUCKET_NAME);
+console.log("AWS_BUCKET_REGION:", config.AWS_BUCKET_REGION);
 
 const app = express();
 

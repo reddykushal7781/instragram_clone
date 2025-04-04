@@ -1,4 +1,5 @@
 import js from "@eslint/js";
+import google from "eslint-config-google";
 
 // Google JavaScript Style Guidelines - simplified for ESLint v9
 const googleStyleRules = {
@@ -24,6 +25,7 @@ const googleStyleRules = {
 
 export default [
   js.configs.recommended,
+  google,
   {
     ignores: [
       "node_modules/**",
@@ -40,7 +42,7 @@ export default [
     ],
   },
   {
-    files: ["server.js", "backend/**/*.js"],
+    files: ["server.js", "backend/**/*.js", "frontend/**/*.js", "frontend/**/*.jsx"],
     languageOptions: {
       ecmaVersion: "latest",
 

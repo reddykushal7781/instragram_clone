@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Auth from './Auth';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Avatar } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { clearErrors, registerUser } from '../../actions/userAction';
 import BackdropLoader from '../Layouts/BackdropLoader';
+import axiosInstance from '../../utils/axios';
+import OTPVerificationModal from './OTPVerificationModal';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const SignUp = () => {
-
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
-  const { loading, isAuthenticated, error } = useSelector((state) => state.user);
+  const { loading, error } = useSelector((state) => state.user);
 
   const [user, setUser] = useState({
     email: '',
@@ -26,8 +27,11 @@ const SignUp = () => {
 
   const [avatar, setAvatar] = useState();
   const [avatarPreview, setAvatarPreview] = useState();
+  const [showOTPModal, setShowOTPModal] = useState(false);
+  const [userId, setUserId] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
 
     const userCheck = /^[a-z0-9_.-]{6,25}$/igm;
@@ -45,6 +49,8 @@ const SignUp = () => {
       return;
     }
 
+    setIsSubmitting(true);
+
     const formData = new FormData();
     formData.set('email', email);
     formData.set('name', name);
@@ -52,7 +58,25 @@ const SignUp = () => {
     formData.set('password', password);
     formData.set('avatar', avatar);
 
-    dispatch(registerUser(formData));
+    try {
+      const { data } = await axiosInstance.post('/api/v1/signup', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      toast.success('Registration successful! Please verify your email.');
+      setUserId(data.userId);
+      setShowOTPModal(true);
+    } catch (error) {
+      toast.error(
+        error.response && error.response.data
+          ? error.response.data.message
+          : 'Registration failed'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleDataChange = (e) => {
@@ -66,7 +90,6 @@ const SignUp = () => {
       };
 
       reader.readAsDataURL(e.target.files[0]);
-      // console.log(e.target.files[0])
       setAvatar(e.target.files[0]);
 
     } else {
@@ -79,10 +102,7 @@ const SignUp = () => {
       toast.error(error);
       dispatch(clearErrors());
     }
-    if (isAuthenticated) {
-      navigate('/');
-    }
-  }, [dispatch, error, isAuthenticated, navigate]);
+  }, [dispatch, error]);
 
   return (
     <>
@@ -105,6 +125,7 @@ const SignUp = () => {
               required
               size="small"
               inputProps={{ maxLength: 40 }}
+              disabled={isSubmitting}
             />
             <TextField
               fullWidth
@@ -115,6 +136,7 @@ const SignUp = () => {
               required
               size="small"
               inputProps={{ maxLength: 40 }}
+              disabled={isSubmitting}
             />
             <TextField
               label="Username"
@@ -126,6 +148,7 @@ const SignUp = () => {
               required
               fullWidth
               inputProps={{ maxLength: 20 }}
+              disabled={isSubmitting}
             />
             <TextField
               label="Password"
@@ -137,6 +160,7 @@ const SignUp = () => {
               size="small"
               fullWidth
               inputProps={{ maxLength: 25 }}
+              disabled={isSubmitting}
             />
             <div className="flex w-full justify-between gap-3 items-center">
               <Avatar
@@ -156,11 +180,26 @@ const SignUp = () => {
                                     file:text-sm file:cursor-pointer file:font-semibold
                                     file:bg-blue-100 file:text-blue-700
                                     hover:file:bg-blue-200
-                                    "/>
+                                    "
+                  disabled={isSubmitting}
+                />
               </label>
             </div>
 
-            <button type="submit" className="bg-blue-600 font-medium py-2 rounded text-white w-full">Sign up</button>
+            <button 
+              type="submit" 
+              className={`font-medium py-2 rounded text-white w-full flex items-center justify-center ${isSubmitting ? 'bg-blue-400' : 'bg-blue-600'}`}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <CircularProgress size={20} color="inherit" className="mr-2" />
+                  Signing up...
+                </>
+              ) : (
+                'Sign up'
+              )}
+            </button>
           </form>
         </div>
 
@@ -168,6 +207,12 @@ const SignUp = () => {
           <span>Already have an account? <Link to="/login" className="text-blue-600">Log in</Link></span>
         </div>
       </Auth>
+
+      <OTPVerificationModal 
+        open={showOTPModal}
+        onClose={() => setShowOTPModal(false)}
+        userId={userId}
+      />
     </>
   );
 };

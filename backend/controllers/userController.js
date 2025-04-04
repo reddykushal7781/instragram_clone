@@ -3,8 +3,9 @@ import Post from "../models/postModel.js";
 import catchAsync from "../middlewares/catchAsync.js";
 import sendCookie from "../utils/sendCookie.js";
 import ErrorHandler from "../utils/errorHandler.js";
-import crypto from "crypto";
 import { deleteFile } from "../utils/awsFunctions.js";
+import { sendVerificationEmail } from "../utils/emailService.js";
+import config from "../config/config.js";
 
 // Signup User
 export const signupUser = catchAsync(async (req, res, next) => {
@@ -33,24 +34,98 @@ export const signupUser = catchAsync(async (req, res, next) => {
     avatar: avatarPath,
   });
 
+  // Send verification email
+  const emailSent = await sendVerificationEmail(email, newUser.verificationOTP);
+  
+  if (!emailSent) {
+    await User.findByIdAndDelete(newUser._id);
+    return next(new ErrorHandler("Error sending verification email", 500));
+  }
+
+  res.status(201).json({
+    success: true,
+    message: "Verification email sent. Please verify your email to continue.",
+    userId: newUser._id,
+  });
+});
+
+// Verify Email
+export const verifyEmail = catchAsync(async (req, res, next) => {
+  const { userId, otp } = req.body;
+
+  const user = await User.findById(userId).select("+verificationOTP +verificationOTPExpires");
+
+  if (!user) {
+    return next(new ErrorHandler("User not found", 404));
+  }
+
+  if (user.isEmailVerified) {
+    return next(new ErrorHandler("Email already verified", 400));
+  }
+
+  if (user.verificationOTP !== otp) {
+    return next(new ErrorHandler("Invalid OTP", 400));
+  }
+
+  if (user.verificationOTPExpires < Date.now()) {
+    return next(new ErrorHandler("OTP expired", 400));
+  }
+
+  user.isEmailVerified = true;
+  user.verificationOTP = undefined;
+  user.verificationOTPExpires = undefined;
+  await user.save();
+
   // Generate token
-  const token = newUser.generateToken();
+  const token = user.generateToken();
   
   // Set cookie
   const options = {
     expires: new Date(
-      Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+      Date.now() + config.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
+    secure: config.NODE_ENV === 'production',
+    sameSite: config.NODE_ENV === 'production' ? 'none' : 'lax',
+    domain: config.NODE_ENV === 'production' ? '.onrender.com' : undefined
   };
   
-  res.status(201).cookie("token", token, options).json({
+  res.status(200).cookie("token", token, options).json({
     success: true,
-    user: newUser,
-    token // Include token in response body
+    message: "Email verified successfully",
+    user,
+    token
+  });
+});
+
+// Resend Verification Email
+export const resendVerificationEmail = catchAsync(async (req, res, next) => {
+  const { userId } = req.body;
+
+  const user = await User.findById(userId);
+
+  if (!user) {
+    return next(new ErrorHandler("User not found", 404));
+  }
+
+  if (user.isEmailVerified) {
+    return next(new ErrorHandler("Email already verified", 400));
+  }
+
+  // Generate new OTP
+  user.verificationOTP = Math.floor(100000 + Math.random() * 900000).toString();
+  user.verificationOTPExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+  await user.save();
+
+  const emailSent = await sendVerificationEmail(user.email, user.verificationOTP);
+
+  if (!emailSent) {
+    return next(new ErrorHandler("Error sending verification email", 500));
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Verification email sent successfully",
   });
 });
 
@@ -66,6 +141,10 @@ export const loginUser = catchAsync(async (req, res, next) => {
     return next(new ErrorHandler("Invalid User or Password", 401));
   }
 
+  if (!user.isEmailVerified) {
+    return next(new ErrorHandler("Please verify your email first", 401));
+  }
+
   const isPasswordMatched = await user.comparePassword(password);
 
   if (!isPasswordMatched) {
@@ -78,18 +157,18 @@ export const loginUser = catchAsync(async (req, res, next) => {
   // Set cookie
   const options = {
     expires: new Date(
-      Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+      Date.now() + config.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
+    secure: config.NODE_ENV === 'production',
+    sameSite: config.NODE_ENV === 'production' ? 'none' : 'lax',
+    domain: config.NODE_ENV === 'production' ? '.onrender.com' : undefined
   };
   
   res.status(200).cookie("token", token, options).json({
     success: true,
     user,
-    token // Include token in response body
+    token
   });
 });
 
@@ -98,9 +177,9 @@ export const logoutUser = catchAsync(async (req, res, next) => {
   const options = {
     expires: new Date(Date.now()),
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
+    secure: config.NODE_ENV === 'production',
+    sameSite: config.NODE_ENV === 'production' ? 'none' : 'lax',
+    domain: config.NODE_ENV === 'production' ? '.onrender.com' : undefined
   };
   
   res.cookie("token", null, options);
@@ -126,12 +205,12 @@ export const getAccountDetails = catchAsync(async (req, res, next) => {
   // Set cookie
   const options = {
     expires: new Date(
-      Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+      Date.now() + config.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
+    secure: config.NODE_ENV === 'production',
+    sameSite: config.NODE_ENV === 'production' ? 'none' : 'lax',
+    domain: config.NODE_ENV === 'production' ? '.onrender.com' : undefined
   };
   
   res.status(200).cookie("token", token, options).json({

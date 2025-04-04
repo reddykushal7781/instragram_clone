@@ -1,5 +1,6 @@
 // Load environment variables first - MUST BE AT THE TOP
-import dotenv from "dotenv";
+// import dotenv from "dotenv";
+import config from './backend/config/config.js';
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -8,21 +9,21 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Load environment variables
-dotenv.config({ path: path.join(__dirname, "backend/config/config.env") });
+// dotenv.config({ path: path.join(__dirname, "backend/config/config.env") });
 
 console.log("====== Environment Variables ======");
-console.log("AWS_BUCKET_NAME:", process.env.AWS_BUCKET_NAME);
-console.log("AWS_BUCKET_REGION:", process.env.AWS_BUCKET_REGION);
+console.log("AWS_BUCKET_NAME:", config.AWS_BUCKET_NAME);
+console.log("AWS_BUCKET_REGION:", config.AWS_BUCKET_REGION);
 console.log(
   "AWS_IAM_USER_KEY:",
-  process.env.AWS_IAM_USER_KEY ? "******** (set)" : "undefined"
+  config.AWS_IAM_USER_KEY ? "******** (set)" : "undefined"
 );
 console.log(
   "AWS_IAM_USER_SECRET:",
-  process.env.AWS_IAM_USER_SECRET ? "******** (set)" : "undefined"
+  config.AWS_IAM_USER_SECRET ? "******** (set)" : "undefined"
 );
-console.log("NODE_ENV:", process.env.NODE_ENV);
-console.log("PORT:", process.env.PORT);
+console.log("NODE_ENV:", config.NODE_ENV);
+console.log("PORT:", config.PORT);
 console.log("==================================");
 
 // Now import the rest of the dependencies
@@ -30,9 +31,9 @@ import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import app from "./backend/app.js";
-import connectDatabase from "./backend/config/database.js";
+import connectDatabase from "./backend/connection/db.js";
 
-const PORT = process.env.PORT || 4001;
+const PORT = config.PORT || 4001;
 
 connectDatabase();
 

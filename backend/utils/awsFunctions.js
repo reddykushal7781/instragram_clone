@@ -5,6 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
 import dotenv from "dotenv";
+import config from "../config/config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,20 +37,20 @@ const initializeStorage = () => {
 
   console.log("Initializing storage system...");
   console.log("AWS Configuration (in awsFunctions.js):");
-  console.log("AWS_BUCKET_NAME:", process.env.AWS_BUCKET_NAME || "undefined");
+  console.log("AWS_BUCKET_NAME:", config.AWS_BUCKET_NAME || "undefined");
   console.log(
     "AWS_BUCKET_REGION:",
-    process.env.AWS_BUCKET_REGION || "undefined"
+    config.AWS_BUCKET_REGION || "undefined"
   );
   console.log(
     "AWS_IAM_USER_KEY:",
-    process.env.AWS_IAM_USER_KEY
-      ? "********" + process.env.AWS_IAM_USER_KEY.substr(-4)
+    config.AWS_IAM_USER_KEY
+      ? "********" + config.AWS_IAM_USER_KEY.substr(-4)
       : "undefined"
   );
   console.log(
     "AWS_IAM_USER_SECRET:",
-    process.env.AWS_IAM_USER_SECRET ? "********" : "undefined"
+    config.AWS_IAM_USER_SECRET ? "********" : "undefined"
   );
 
   // Ensure local directories exist for fallback
@@ -57,24 +58,24 @@ const initializeStorage = () => {
 
   // Check if AWS credentials are available
   const hasAWSCredentials = !!(
-    process.env.AWS_BUCKET_NAME &&
-    process.env.AWS_BUCKET_REGION &&
-    process.env.AWS_IAM_USER_KEY &&
-    process.env.AWS_IAM_USER_SECRET
+    config.AWS_BUCKET_NAME &&
+    config.AWS_BUCKET_REGION &&
+    config.AWS_IAM_USER_KEY &&
+    config.AWS_IAM_USER_SECRET
   );
 
   if (hasAWSCredentials) {
     console.log("AWS credentials found. Configuring S3...");
     try {
       s3Config = new aws.S3({
-        accessKeyId: process.env.AWS_IAM_USER_KEY,
-        secretAccessKey: process.env.AWS_IAM_USER_SECRET,
-        region: process.env.AWS_BUCKET_REGION,
+        accessKeyId: config.AWS_IAM_USER_KEY,
+        secretAccessKey: config.AWS_IAM_USER_SECRET,
+        region: config.AWS_BUCKET_REGION,
         apiVersion: "2006-03-01",
       });
 
       // Simple synchronous check instead of async operation
-      console.log(`Using S3 bucket: ${process.env.AWS_BUCKET_NAME}`);
+      console.log(`Using S3 bucket: ${config.AWS_BUCKET_NAME}`);
       useS3Storage = true;
       storageInitialized = true;
       initializationInProgress = false;
@@ -135,7 +136,7 @@ const getPostStorage = () => {
 const getS3AvatarStorage = () => {
   return multerS3({
     s3: s3Config,
-    bucket: process.env.AWS_BUCKET_NAME,
+    bucket: config.AWS_BUCKET_NAME,
     acl: "public-read",
     metadata: function (req, file, cb) {
       console.log("Processing avatar metadata:", file.fieldname);
@@ -173,7 +174,7 @@ const getLocalAvatarStorage = () => {
 const getS3PostStorage = () => {
   return multerS3({
     s3: s3Config,
-    bucket: process.env.AWS_BUCKET_NAME,
+    bucket: config.AWS_BUCKET_NAME,
     acl: "public-read",
     metadata: function (req, file, cb) {
       console.log("Processing post metadata:", file.fieldname);
@@ -252,7 +253,7 @@ export const deleteFile = async (fileuri) => {
 
       const result = await s3Config
         .deleteObject({
-          Bucket: process.env.AWS_BUCKET_NAME,
+          Bucket: config.AWS_BUCKET_NAME,
           Key: fileKey,
         })
         .promise();

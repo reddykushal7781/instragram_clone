@@ -6,6 +6,8 @@ import { toast } from "react-toastify";
 import BackdropLoader from "../Layouts/BackdropLoader";
 import { useDispatch, useSelector } from "react-redux";
 import { clearErrors, loginUser } from "../../actions/userAction";
+import axiosInstance from "../../utils/axios";
+import OTPVerificationModal from "./OTPVerificationModal";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -17,14 +19,43 @@ const Login = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showOTPModal, setShowOTPModal] = useState(false);
+  const [userId, setUserId] = useState(null);
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setShowOTPModal(false);
+    setUserId(null);
+    
     try {
       await dispatch(loginUser(email, password));
-      navigate('/');
     } catch (error) {
-      // Error is already handled in the action
+      // Check if the error is related to email verification
+      if (error.response && error.response.data && 
+          error.response.data.message && 
+          error.response.data.message.includes("verify your email")) {
+        setUserId(error.response.data.userId);
+        setShowOTPModal(true);
+      }
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!userId) {
+      toast.error("Unable to resend verification. Please try signing up again.");
+      return;
+    }
+    
+    try {
+      await axiosInstance.post('/api/v1/resend-verification', { userId });
+      toast.success('Verification email sent successfully!');
+      navigate('/verify-email', { state: { userId } });
+    } catch (error) {
+      toast.error(
+        error.response && error.response.data
+          ? error.response.data.message
+          : 'Failed to resend verification email'
+      );
     }
   };
 
@@ -74,6 +105,7 @@ const Login = () => {
               size="small"
               fullWidth
             />
+            
             <button
               type="submit"
               className="w-full py-2 font-medium text-white rounded bg-blue-600"
@@ -92,6 +124,12 @@ const Login = () => {
           </span>
         </div>
       </Auth>
+
+      <OTPVerificationModal 
+        open={showOTPModal}
+        onClose={() => setShowOTPModal(false)}
+        userId={userId}
+      />
     </>
   );
 };
