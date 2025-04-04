@@ -5,6 +5,7 @@ import sendCookie from "../utils/sendCookie.js";
 import ErrorHandler from "../utils/errorHandler.js";
 import { deleteFile } from "../utils/awsFunctions.js";
 import { sendVerificationEmail } from "../utils/emailService.js";
+import config from "../config/config.js";
 
 // Signup User
 export const signupUser = catchAsync(async (req, res, next) => {
@@ -81,12 +82,12 @@ export const verifyEmail = catchAsync(async (req, res, next) => {
   // Set cookie
   const options = {
     expires: new Date(
-      Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+      Date.now() + config.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
+    secure: config.NODE_ENV === 'production',
+    sameSite: config.NODE_ENV === 'production' ? 'none' : 'lax',
+    domain: config.NODE_ENV === 'production' ? '.onrender.com' : undefined
   };
   
   res.status(200).cookie("token", token, options).json({
@@ -156,12 +157,12 @@ export const loginUser = catchAsync(async (req, res, next) => {
   // Set cookie
   const options = {
     expires: new Date(
-      Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+      Date.now() + config.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
+    secure: config.NODE_ENV === 'production',
+    sameSite: config.NODE_ENV === 'production' ? 'none' : 'lax',
+    domain: config.NODE_ENV === 'production' ? '.onrender.com' : undefined
   };
   
   res.status(200).cookie("token", token, options).json({
@@ -176,9 +177,9 @@ export const logoutUser = catchAsync(async (req, res, next) => {
   const options = {
     expires: new Date(Date.now()),
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
+    secure: config.NODE_ENV === 'production',
+    sameSite: config.NODE_ENV === 'production' ? 'none' : 'lax',
+    domain: config.NODE_ENV === 'production' ? '.onrender.com' : undefined
   };
   
   res.cookie("token", null, options);
@@ -204,12 +205,12 @@ export const getAccountDetails = catchAsync(async (req, res, next) => {
   // Set cookie
   const options = {
     expires: new Date(
-      Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+      Date.now() + config.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
+    secure: config.NODE_ENV === 'production',
+    sameSite: config.NODE_ENV === 'production' ? 'none' : 'lax',
+    domain: config.NODE_ENV === 'production' ? '.onrender.com' : undefined
   };
   
   res.status(200).cookie("token", token, options).json({

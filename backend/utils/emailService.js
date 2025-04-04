@@ -1,16 +1,17 @@
 import nodemailer from 'nodemailer';
+import config from '../config/config.js';
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
+    user: config.EMAIL_USER,
+    pass: config.EMAIL_PASSWORD,
   },
 });
 
 export const sendVerificationEmail = async (email, otp) => {
   const mailOptions = {
-    from: process.env.EMAIL_USER,
+    from: config.EMAIL_USER,
     to: email,
     subject: 'Email Verification - Instagram Clone',
     html: `

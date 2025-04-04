@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import config from "../config/config";
 
 const connectDatabase = () => {
   const options = {
@@ -9,7 +10,7 @@ const connectDatabase = () => {
     family: 4,
   };
   mongoose
-    .connect(process.env.MONGO_URI, options)
+    .connect(config.MONGO_URI, options)
     .then(() => {
       console.log("MongoDB Connected Successfully");
     })

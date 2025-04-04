@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
 // import ErrorHandler from "../utils/errorHandler.js";
 import catchAsync from "./catchAsync.js";
+import config from "../config/config.js";
 
 export const isAuthenticated = catchAsync(async (req, res, next) => {
   // Get token from cookie or Authorization header
@@ -20,7 +21,7 @@ export const isAuthenticated = catchAsync(async (req, res, next) => {
   }
 
   try {
-    const decodedData = jwt.verify(token, process.env.JWT_SECRET);
+    const decodedData = jwt.verify(token, config.JWT_SECRET);
     req.user = await User.findById(decodedData.id);
     next();
   } catch {

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import config from "./config.js";
 
 const connectDatabase = () => {
   // Add more options reliability
