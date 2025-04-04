@@ -53,10 +53,14 @@ function App() {
             path="/"
             element={
               <PrivateRoute>
-                <>
+                {/* <>
                   <Header />
                   <Home />
-                </>
+                </> */}
+                <div className="flex h-screen"> {/* Full height layout */}
+                  <Header className="w-64 flex-1" /> {/* Fixed width */}
+                  <Home className="flex-grow" /> {/* Takes the remaining space */}
+                </div>
               </PrivateRoute>
             }
           />

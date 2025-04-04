@@ -74,7 +74,7 @@ const SearchBox = () => {
 
   return (
     <ClickAwayListener onClickAway={handleClickAway}>
-      <div className="hidden sm:flex items-center gap-3 pl-4 ml-36 w-64 py-2 bg-[#efefef] rounded-lg relative">
+      {/* <div className="hidden sm:flex items-center gap-3  w-64 py-2 bg-[#efefef] rounded-lg relative">
         {!searching && searchIcon}
         <input
           className="bg-transparent text-sm border-none outline-none flex-1 pr-3"
@@ -105,7 +105,41 @@ const SearchBox = () => {
                       </div>
                     </>
         }
+      </div> */}
+      <div className="hidden sm:flex items-center gap-3 w-[220px] py-2 bg-[#efefef] rounded-lg relative">
+  {!searching && searchIcon}
+  <input
+    className="bg-transparent text-sm border-none outline-none flex-1 pr-3"
+    type="search"
+    value={searchTerm}
+    onFocus={handleFocus}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    placeholder="Search"
+  />
+  
+  {searchResult && (
+    <>
+      <div className="absolute right-1/2 -bottom-5 rotate-45 h-4 w-4 drop-shadow-lg bg-white rounded-sm border-l border-t"></div>
+
+      <div className={`${loading ? 'justify-center items-center' : users && users.length < 1 && 'justify-center items-center'} absolute overflow-y-auto overflow-x-hidden flex flex-col top-0 left-full ml-3 w-[23rem] h-80 bg-white drop-shadow-xl rounded z-50`}>
+        {loading ? (
+          <div className="flex justify-center items-center h-full">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900"></div>
+          </div>
+        ) : users && users.length > 0 ? (
+          users.map((user) => (
+            <div key={user._id} onClick={handleUserClick}>
+              <SearchUserItem {...user} />
+            </div>
+          ))
+        ) : (
+          <span className="text-gray-400 text-sm">No results found.</span>
+        )}
       </div>
+    </>
+  )}
+</div>
+
     </ClickAwayListener>
   );
 };

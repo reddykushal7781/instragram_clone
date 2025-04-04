@@ -11,6 +11,11 @@ const Home = () => {
         <PostsContainer />
         <Sidebar />
       </div>
+
+      {/* <div className="flex h-full w-full mt-14"> 
+        <PostsContainer />
+        <Sidebar />
+      </div> */}
     </>
   );
 };
