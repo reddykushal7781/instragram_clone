@@ -31,7 +31,7 @@ import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import app from "./backend/app.js";
-import connectDatabase from "./backend/config/database.js";
+import connectDatabase from "./backend/connection/db.js";
 
 const PORT = config.PORT || 4001;
 
