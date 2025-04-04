@@ -23,7 +23,7 @@ export const isAuthenticated = catchAsync(async (req, res, next) => {
     const decodedData = jwt.verify(token, process.env.JWT_SECRET);
     req.user = await User.findById(decodedData.id);
     next();
-  } catch (error) {
+  } catch {
     return res.status(401).json({ 
       success: false,
       message: "Invalid or expired token. Please login again."

@@ -3,7 +3,6 @@ import Post from "../models/postModel.js";
 import catchAsync from "../middlewares/catchAsync.js";
 import sendCookie from "../utils/sendCookie.js";
 import ErrorHandler from "../utils/errorHandler.js";
-import crypto from "crypto";
 import { deleteFile } from "../utils/awsFunctions.js";
 import { sendVerificationEmail } from "../utils/emailService.js";
 

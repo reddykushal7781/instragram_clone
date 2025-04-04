@@ -8,7 +8,7 @@
     "start": "node server.js",
     "lint": "eslint server.js backend/",
     "lint:fix": "eslint server.js backend/ --fix",
-    "lint:frontend": "cd frontend && npm run lint",
+    "lint:frontend": "eslint frontend/ --report-unused-disable-directives --max-warnings 0",
     "lint:frontend:fix": "cd frontend && npm run lint:fix",
     "lint:all": "npm run lint && npm run lint:frontend",
     "lint:all:fix": "npm run lint:fix && npm run lint:frontend:fix"
@@ -21,6 +21,7 @@
     "aws-sdk": "^2.1692.0",
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
@@ -32,7 +33,6 @@
   },
   "devDependencies": {
     "eslint-config-google": "^0.14.0",
-    "global": "^4.4.0",
     "nodemon": "^3.1.9"
   }
 }
