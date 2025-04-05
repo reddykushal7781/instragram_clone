@@ -11,7 +11,6 @@ import {
 } from '../../constants/postConstants';
 import UsersDialog from '../Layouts/UsersDialog';
 import PostItem from './PostItem';
-import StoriesContainer from './StoriesContainer';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import SpinLoader from '../Layouts/SpinLoader';
 import SkeletonPost from '../Layouts/SkeletonPost';
@@ -110,40 +109,38 @@ const PostsContainer = () => {
   };
 
   return (
-    <>
-      <div className="flex flex-col w-full lg:w-2/3 sm:mt-6 sm:px-8 mb-8">
-        <StoriesContainer />
+    <div className="w-full">
+      <InfiniteScroll
+        dataLength={posts?.length || 0}
+        next={fetchMorePosts}
+        hasMore={posts?.length !== totalPosts}
+        loader={<SpinLoader />}
+        endMessage={
+          <p className="text-center my-4">
+            <b>Yay! You have seen it all</b>
+          </p>
+        }
+      >
+        {loading ? (
+          <SkeletonPost />
+        ) : (
+          posts?.map((post) => (
+            <PostItem
+              key={post._id}
+              post={post}
+              setUsersList={setUsersList}
+              setUsersDialog={setUsersDialog}
+            />
+          ))
+        )}
+      </InfiniteScroll>
 
-        {loading &&
-          Array(5)
-            .fill('')
-            .map((el, i) => <SkeletonPost key={i} />)}
-        <InfiniteScroll
-          dataLength={posts.length}
-          next={fetchMorePosts}
-          hasMore={posts.length !== totalPosts}
-          loader={<SpinLoader />}
-        >
-          <div className="w-full h-full mt-1 sm:mt-6 flex flex-col space-y-4">
-            {posts?.map((post) => (
-              <PostItem
-                key={post._id}
-                {...post}
-                setUsersDialog={setUsersDialog}
-                setUsersList={setUsersList}
-              />
-            ))}
-          </div>
-        </InfiniteScroll>
-
-        <UsersDialog
-          title="Likes"
-          open={usersDialog}
-          onClose={handleClose}
-          usersList={usersList}
-        />
-      </div>
-    </>
+      <UsersDialog
+        open={usersDialog}
+        handleClose={handleClose}
+        users={usersList}
+      />
+    </div>
   );
 };
 

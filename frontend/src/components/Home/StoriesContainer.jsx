@@ -33,7 +33,7 @@ const StoriesContainer = () => {
   };
 
   return (
-    <>
+    <div className="w-full">
       <Slider {...settings} className="w-full bg-white pt-2.5 pb-1 px-2.5 flex overflow-hidden border rounded">
 
         {stories.map((s, i) => {
@@ -57,8 +57,7 @@ const StoriesContainer = () => {
         })}
 
       </Slider>
-    </>
-
+    </div>
   );
 };
 

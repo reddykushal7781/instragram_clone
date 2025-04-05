@@ -416,7 +416,7 @@ const Inbox = () => {
     <>
       <MetaData title="Instagram • Chats" />
 
-      <div className="mt-14 sm:mt-[4.7rem] pb-4 rounded h-[90vh] xl:w-2/3 mx-auto sm:pr-14 sm:pl-8">
+      <div className=" pb-4 rounded h-[100vh] xl:w-2/3 mx-auto sm:pr-14 sm:pl-8">
         <div className="flex border h-full rounded w-full bg-white">
           {/* sidebar */}
           <Sidebar openModal={openModal} />

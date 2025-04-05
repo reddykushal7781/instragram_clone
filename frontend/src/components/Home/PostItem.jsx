@@ -20,14 +20,7 @@ import { Dialog } from "@mui/material";
 import { toast } from "react-toastify";
 
 const PostItem = ({
-  _id,
-  caption,
-  likes,
-  comments,
-  image,
-  postedBy,
-  savedBy,
-  createdAt,
+  post,
   setUsersDialog,
   setUsersList,
 }) => {
@@ -37,9 +30,12 @@ const PostItem = ({
   const { user } = useSelector((state) => state.user);
   const [deleteModal, setDeleteModal] = useState(false);
 
-  const [allLikes, setAllLikes] = useState(likes);
-  const [allComments, setAllComments] = useState(comments);
-  const [allSavedBy, setAllSavedBy] = useState(savedBy);
+  // Destructure post properties
+  const { _id, caption, likes, comments, image, postedBy, savedBy, createdAt } = post || {};
+
+  const [allLikes, setAllLikes] = useState(likes || []);
+  const [allComments, setAllComments] = useState(comments || []);
+  const [allSavedBy, setAllSavedBy] = useState(savedBy || []);
 
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);

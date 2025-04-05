@@ -123,7 +123,7 @@ const Profile = () => {
 
       {loading && <BackdropLoader />}
       {user ? (
-        <div className="mt-16 xl:w-2/3 mx-auto">
+        <div className="xl:w-2/3 mx-auto pl-16">
           <div className="sm:flex w-full sm:py-8">
             {/* profile picture */}
             <div className="sm:w-1/3 flex justify-center mx-auto sm:mx-0">

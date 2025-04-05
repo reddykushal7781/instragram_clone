@@ -47,7 +47,7 @@ const Sidebar = () => {
   }, [success, followError]);
 
   return (
-    <div className="fixed lg:right-32 xl:right-56 w-3/12 h-full hidden lg:flex flex-col flex-auto m-8 mt-12 pr-8 -z-1">
+    <div className="fixed lg:right-32 xl:right-30 w-3/12 h-full hidden lg:flex flex-col flex-auto m-8 mt-4 pr-8 -z-1">
       <div className="ml-10 flex flex-col p-2">
         {/* <!-- self profile card --> */}
         <div className="flex justify-between items-center">
