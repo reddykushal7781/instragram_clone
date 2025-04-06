@@ -59,37 +59,46 @@ const Inbox = () => {
   useEffect(() => {
     if (!loggedInUser?._id) return; // Don't initialize if no user
 
-    if (!socket.current) {
-      console.log('Initializing socket connection');
-      socket.current = io(SOCKET_ENDPOINT, config.SOCKET_OPTIONS);
+    console.log('Initializing socket connection');
+    socket.current = io(SOCKET_ENDPOINT, config.SOCKET_OPTIONS);
 
-      socket.current.on('connect', () => {
-        console.log('Socket connected successfully');
-        socketInitialized.current = true;
-        setConnectionStatus('connected');
-        setReconnectAttempts(0);
+    socket.current.on('connect', () => {
+      console.log('Socket connected successfully');
+      socketInitialized.current = true;
+      setConnectionStatus('connected');
+      setReconnectAttempts(0);
 
-        // Register the current user
-        console.log('Registering user:', loggedInUser._id);
-        socket.current.emit('addUser', loggedInUser._id);
-      });
+      // Register the current user
+      console.log('Registering user:', loggedInUser._id);
+      socket.current.emit('addUser', loggedInUser._id);
 
-      socket.current.on('connect_error', (error) => {
-        console.error('Socket connection error:', error);
-        setConnectionStatus('error');
-        socketInitialized.current = false;
-      });
+      // Process any queued messages
+      while (messageQueue.current.length > 0) {
+        const queuedMessage = messageQueue.current.shift();
+        console.log('Sending queued message:', queuedMessage);
+        socket.current.emit('sendMessage', queuedMessage);
+      }
+    });
 
-      socket.current.on('disconnect', () => {
-        console.log('Socket disconnected');
-        setConnectionStatus('disconnected');
-        socketInitialized.current = false;
-      });
-    }
+    socket.current.on('connect_error', (error) => {
+      console.error('Socket connection error:', error);
+      setConnectionStatus('error');
+      socketInitialized.current = false;
+    });
+
+    socket.current.on('disconnect', () => {
+      console.log('Socket disconnected');
+      setConnectionStatus('disconnected');
+      socketInitialized.current = false;
+    });
 
     return () => {
-      // Don't disconnect socket on component unmount
-      // Only clean up other resources
+      console.log('Cleaning up socket connection');
+      if (socket.current) {
+        socket.current.disconnect();
+        socket.current = null;
+        socketInitialized.current = false;
+      }
       if (reconnectInterval.current) {
         clearInterval(reconnectInterval.current);
         reconnectInterval.current = null;
@@ -97,47 +106,27 @@ const Inbox = () => {
     };
   }, [loggedInUser?._id]); // Only reinitialize when user changes
 
-  // Cleanup socket on complete unmount
-  useEffect(() => {
-    return () => {
-      if (socket.current) {
-        console.log('Cleaning up socket connection');
-        socket.current.disconnect();
-        socket.current = null;
-        socketInitialized.current = false;
-      }
-    };
-  }, []);
-
   // Reset states when changing chats
   useEffect(() => {
-    // Reset states when changing chats
-    setIsTyping(false);
-    setTyping(false);
-    setShowEmojis(false);
-    setMessage('');
-    setCurrentFriend(null);
-    
-    // Clear any pending timeouts
-    if (window.typingTimeout) {
-      clearTimeout(window.typingTimeout);
-    }
-
-    // Reset user details only if we're changing to a different user
-    if (params.chatId) {
+    return () => {
+      // Reset states when unmounting or changing chats
+      setIsTyping(false);
+      setTyping(false);
+      setShowEmojis(false);
+      setMessage('');
       dispatch({ type: USER_DETAILS_RESET });
-    }
-
-    // Fetch new chat data
-    if (params.chatId && userId && userId !== loggedInUser?._id) {
-      dispatch(getAllMessages(params.chatId));
-      dispatch(getUserDetailsById(userId));
-    }
-  }, [params.chatId, userId, dispatch, loggedInUser]);
+      setCurrentFriend(null);
+      
+      // Clear any pending timeouts
+      if (window.typingTimeout) {
+        clearTimeout(window.typingTimeout);
+      }
+    };
+  }, [params.chatId, dispatch]);
 
   // Set up message and typing event handlers
   useEffect(() => {
-    if (!socket.current || !socketInitialized.current) return;
+    if (!socket.current || !socketInitialized.current || !userId || !params.chatId) return;
 
     const handleNewMessage = (data) => {
       // Only process messages for the current chat
@@ -160,28 +149,25 @@ const Inbox = () => {
       }
     };
 
-    const handleTyping = (data) => {
+    // Set up event listeners
+    socket.current.on('getMessage', handleNewMessage);
+    socket.current.on('typing', (data) => {
       if (data.senderId === userId) {
         setIsTyping(true);
       }
-    };
-
-    const handleTypingStop = (data) => {
+    });
+    socket.current.on('typing stop', (data) => {
       if (data.senderId === userId) {
         setIsTyping(false);
       }
-    };
-
-    // Set up event listeners
-    socket.current.on('getMessage', handleNewMessage);
-    socket.current.on('typing', handleTyping);
-    socket.current.on('typing stop', handleTypingStop);
+    });
 
     return () => {
-      // Remove event listeners when changing chats
-      socket.current.off('getMessage', handleNewMessage);
-      socket.current.off('typing', handleTyping);
-      socket.current.off('typing stop', handleTypingStop);
+      if (socket.current) {
+        socket.current.off('getMessage');
+        socket.current.off('typing');
+        socket.current.off('typing stop');
+      }
     };
   }, [userId, params.chatId, dispatch]);
 
@@ -204,6 +190,25 @@ const Inbox = () => {
       }
     };
   }, [userId]);
+
+  // Fetch messages and user details
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      dispatch(clearErrors());
+    }
+    if (params.chatId && userId && userId !== loggedInUser?._id) {
+      dispatch(getAllMessages(params.chatId));
+      dispatch(getUserDetailsById(userId));
+    }
+  }, [dispatch, error, params.chatId, userId, loggedInUser]);
+
+  // Update currentFriend when friend details change
+  useEffect(() => {
+    if (friend && friend._id === userId) {
+      setCurrentFriend(friend);
+    }
+  }, [friend, userId]);
 
   // Handle successful message sending
   useEffect(() => {

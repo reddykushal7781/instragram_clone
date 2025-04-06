@@ -80,7 +80,7 @@ const SearchBox = () => {
         </div>
         
         {searchResult && (
-          <div className="absolute top-full left-0 w-full mt-2 bg-white rounded-lg overflow-hidden">
+          <div className="absolute top-full left-0 w-full mt-2 bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="max-h-[400px] overflow-y-auto">
               {loading ? (
                 <div className="flex justify-center items-center p-4">
