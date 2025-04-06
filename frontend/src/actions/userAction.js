@@ -188,9 +188,6 @@ export const loadUser = () => async (dispatch) => {
         type: LOAD_USER_SUCCESS, 
         payload: user 
       });
-      
-      // Fetch user details to ensure avatar is synchronized
-      dispatch(getUserDetails(user.username));
     } else {
       // If no user data in localStorage, try to fetch from server
       const { data } = await axiosInstance.get('/api/v1/me', {
@@ -200,19 +197,15 @@ export const loadUser = () => async (dispatch) => {
       // Store user data in localStorage
       localStorage.setItem('user', JSON.stringify(data.user));
       
-      // Dispatch user data to Redux store
-      dispatch({ 
-        type: LOAD_USER_SUCCESS, 
-        payload: data.user 
+      dispatch({
+        type: LOAD_USER_SUCCESS,
+        payload: data.user,
       });
-      
-      // Fetch user details to ensure avatar is synchronized
-      dispatch(getUserDetails(data.user.username));
     }
   } catch (error) {
-    dispatch({ 
-      type: LOAD_USER_FAIL, 
-      payload: error.response?.data?.message || 'Error loading user' 
+    dispatch({
+      type: LOAD_USER_FAIL,
+      payload: error.response?.data?.message || error.message,
     });
   }
 };
@@ -252,25 +245,6 @@ export const getUserDetails = (username) => async (dispatch) => {
       type: USER_DETAILS_SUCCESS, 
       payload: data.user 
     });
-    
-    // If this is the current user, update the user state to ensure avatar synchronization
-    const currentUser = JSON.parse(localStorage.getItem('user'));
-    if (currentUser && currentUser.username === username) {
-      // Update localStorage with the latest user data
-      localStorage.setItem('user', JSON.stringify({
-        ...currentUser,
-        avatar: data.user.avatar
-      }));
-      
-      // Update the user state in Redux
-      dispatch({ 
-        type: LOAD_USER_SUCCESS, 
-        payload: {
-          ...currentUser,
-          avatar: data.user.avatar
-        }
-      });
-    }
   } catch (error) {
     dispatch({ 
       type: USER_DETAILS_FAIL, 
@@ -283,8 +257,11 @@ export const getUserDetails = (username) => async (dispatch) => {
 export const getUserDetailsById = (userId) => async (dispatch) => {
   try {
     dispatch({ type: USER_DETAILS_REQUEST });
-    const { data } = await axiosInstance.get(`/api/v1/userdetails/${userId}`,{ withCredentials: true });
+    const { data } = await axiosInstance.get(`/api/v1/userdetails/${userId}`, { 
+      withCredentials: true 
+    });
 
+    // Only update userDetails state, not the current user state
     dispatch({
       type: USER_DETAILS_SUCCESS,
       payload: data.user,
@@ -292,10 +269,7 @@ export const getUserDetailsById = (userId) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: USER_DETAILS_FAIL,
-      payload:
-        error.response && error.response.data
-          ? error.response.data.message
-          : error.message,
+      payload: error.response?.data?.message || error.message,
     });
   }
 };

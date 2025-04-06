@@ -20,6 +20,7 @@ const ChatListItem = ({ _id, users = [], latestMessage }) => {
   useEffect(() => {
     if (!users || !Array.isArray(users) || !user) return;
 
+    // Find the friend (user that is not the current user)
     const friendDetails = users.find((u) => u && user && u._id !== user._id);
     if (friendDetails) {
       setFriend(friendDetails);
@@ -77,7 +78,6 @@ const ChatListItem = ({ _id, users = [], latestMessage }) => {
         params.chatId === _id && 'bg-gray-100'
       } flex gap-3 items-center py-2 px-4 cursor-pointer hover:bg-gray-100`}
     >
-      {console.log("i am clicked" ,`/direct/t/${_id}/${friend._id}`)}
       <div className="w-14 h-14 relative">
         <img
           draggable="false"
