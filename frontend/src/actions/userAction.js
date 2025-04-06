@@ -176,45 +176,43 @@ export const resendVerificationEmail = (userId) => async (dispatch) => {
 export const loadUser = () => async (dispatch) => {
   try {
     dispatch({ type: LOAD_USER_REQUEST });
-
-    // Check localStorage first
-    const isAuthenticated = localStorage.getItem("isAuthenticated");
-    const user = JSON.parse(localStorage.getItem("user"));
-    const token = localStorage.getItem("token");
-
-    if (isAuthenticated === "true" && user && token) {
-      dispatch({
-        type: LOAD_USER_SUCCESS,
-        payload: user,
-      });
-      return;
-    }
-
-    // If no localStorage data or missing token, try to fetch from server
-    const { data } = await axiosInstance.get("/api/v1/me", {
-      withCredentials: true,
-    });
-
-    localStorage.setItem("isAuthenticated", "true");
-    localStorage.setItem("user", JSON.stringify(data.user));
     
-    // Store token if it's returned in the response
-    if (data.token) {
-      localStorage.setItem("token", data.token);
+    // Check if user data exists in localStorage
+    const userData = localStorage.getItem('user');
+    
+    if (userData) {
+      const user = JSON.parse(userData);
+      
+      // Dispatch user data to Redux store
+      dispatch({ 
+        type: LOAD_USER_SUCCESS, 
+        payload: user 
+      });
+      
+      // Fetch user details to ensure avatar is synchronized
+      dispatch(getUserDetails(user.username));
+    } else {
+      // If no user data in localStorage, try to fetch from server
+      const { data } = await axiosInstance.get('/api/v1/me', {
+        withCredentials: true
+      });
+      
+      // Store user data in localStorage
+      localStorage.setItem('user', JSON.stringify(data.user));
+      
+      // Dispatch user data to Redux store
+      dispatch({ 
+        type: LOAD_USER_SUCCESS, 
+        payload: data.user 
+      });
+      
+      // Fetch user details to ensure avatar is synchronized
+      dispatch(getUserDetails(data.user.username));
     }
-
-    dispatch({
-      type: LOAD_USER_SUCCESS,
-      payload: data.user,
-    });
   } catch (error) {
-    // Clear localStorage and dispatch failure action
-    localStorage.removeItem("isAuthenticated");
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    dispatch({
-      type: LOAD_USER_FAIL,
-      payload: null,
+    dispatch({ 
+      type: LOAD_USER_FAIL, 
+      payload: error.response?.data?.message || 'Error loading user' 
     });
   }
 };
@@ -245,19 +243,38 @@ export const logoutUser = () => async (dispatch) => {
 export const getUserDetails = (username) => async (dispatch) => {
   try {
     dispatch({ type: USER_DETAILS_REQUEST });
-    const { data } = await axiosInstance.get(`/api/v1/user/${username}`,{ withCredentials: true });
-
-    dispatch({
-      type: USER_DETAILS_SUCCESS,
-      payload: data.user,
+    
+    const { data } = await axiosInstance.get(`/api/v1/user/${username}`, {
+      withCredentials: true
     });
+    
+    dispatch({ 
+      type: USER_DETAILS_SUCCESS, 
+      payload: data.user 
+    });
+    
+    // If this is the current user, update the user state to ensure avatar synchronization
+    const currentUser = JSON.parse(localStorage.getItem('user'));
+    if (currentUser && currentUser.username === username) {
+      // Update localStorage with the latest user data
+      localStorage.setItem('user', JSON.stringify({
+        ...currentUser,
+        avatar: data.user.avatar
+      }));
+      
+      // Update the user state in Redux
+      dispatch({ 
+        type: LOAD_USER_SUCCESS, 
+        payload: {
+          ...currentUser,
+          avatar: data.user.avatar
+        }
+      });
+    }
   } catch (error) {
-    dispatch({
-      type: USER_DETAILS_FAIL,
-      payload:
-        error.response && error.response.data
-          ? error.response.data.message
-          : error.message,
+    dispatch({ 
+      type: USER_DETAILS_FAIL, 
+      payload: error.response?.data?.message || 'Error fetching user details' 
     });
   }
 };

@@ -12,7 +12,6 @@ const ProfileDetails = ({ setProfileToggle, position = { top: 0, left: 0 } }) =>
   const { user } = useSelector((state) => state.user);
 
   const tabs = [
-    { title: 'Profile', icon: profileIcon, redirect: `/${user?.username || ''}` },
     { title: 'Saved', icon: savedIcon, redirect: `/${user?.username || ''}` },
     { title: 'Settings', icon: settingsIcon, redirect: '/accounts/edit' },
     { title: 'Switch Account', icon: switchAccountIcon, redirect: '/' },
@@ -31,36 +30,38 @@ const ProfileDetails = ({ setProfileToggle, position = { top: 0, left: 0 } }) =>
   };
 
   return (
-    <ClickAwayListener onClickAway={() => setProfileToggle(false)}>
-      <div
-        className="fixed w-56 bg-white rounded drop-shadow-lg border z-[9999]"
-        style={{ 
-          top: `${position.top}px`, 
-          left: `${position.left}px`,
-        }}
-      >
-        <div className="absolute right-5 bottom-[-8px] rotate-45 h-4 w-4 bg-white rounded-sm border-r border-b"></div>
+    <div
+      className="fixed bg-white rounded-lg shadow-lg z-50 overflow-hidden"
+      style={{
+        top: `${position.top}px`,
+        left: `${position.left}px`,
+        width: '230px',
+      }}
+    >
 
-        <div className="flex flex-col w-full overflow-hidden">
-          {tabs.map((el, i) => (
-            <div
-              key={i}
-              onClick={() => handleMenuClick(el.redirect)}
-              className="flex items-center gap-3 p-2.5 text-sm pl-4 cursor-pointer hover:bg-gray-50"
-            >
-              {el.icon}
-              {el.title}
-            </div>
-          ))}
-          <button 
-            onClick={handleLogout} 
-            className="flex rounded-b border-t-2 items-center gap-3 p-2.5 text-sm pl-4 cursor-pointer hover:bg-gray-50"
+
+      <div className="py-1">
+        {tabs.map((tab, index) => (
+          <div
+            key={index}
+            className="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer"
+            onClick={() => handleMenuClick(tab.redirect)}
           >
-            Logout
-          </button>
+            <div className="w-5 h-5">{tab.icon}</div>
+            <span className="text-sm">{tab.title}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="border-t py-1">
+        <div
+          className="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer"
+          onClick={handleLogout}
+        >
+          <span className="text-sm text-red-600">Log Out</span>
         </div>
       </div>
-    </ClickAwayListener>
+    </div>
   );
 };
 

@@ -6,6 +6,7 @@ import {
   clearErrors,
   loadUser,
   updateProfile,
+  getUserDetails,
 } from '../../../actions/userAction';
 import profile from '../../../assets/images/hero.png';
 import { UPDATE_PROFILE_RESET } from '../../../constants/userConstants';
@@ -16,7 +17,7 @@ const UpdateProfile = () => {
   const navigate = useNavigate();
   const avatarInput = useRef(null);
 
-  const { user } = useSelector((state) => state.user);
+  const { user } = useSelector((state) => state.userDetails);
   const { error, isUpdated, loading } = useSelector((state) => state.profile);
 
   const [name, setName] = useState('');
@@ -26,6 +27,7 @@ const UpdateProfile = () => {
   const [oldAvatar, setOldAvatar] = useState('');
   const [avatar, setAvatar] = useState('');
   const [avatarPreview, setAvatarPreview] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleUpdate = (e) => {
     e.preventDefault();
@@ -36,6 +38,8 @@ const UpdateProfile = () => {
       toast.error('Invalid Username');
       return;
     }
+
+    setIsSubmitting(true);
 
     const formData = new FormData();
     formData.set('name', name);
@@ -70,15 +74,17 @@ const UpdateProfile = () => {
     if (error) {
       toast.error(error);
       dispatch(clearErrors());
+      setIsSubmitting(false);
     }
     if (isUpdated) {
       toast.success('Profile Updated');
       dispatch(loadUser());
+      dispatch(getUserDetails(username));
       navigate(`/${username}`);
 
       dispatch({ type: UPDATE_PROFILE_RESET });
     }
-  }, [dispatch, user, error, isUpdated]);
+  }, [dispatch, user, error, isUpdated, username]);
 
   return (
     <>
@@ -164,10 +170,20 @@ const UpdateProfile = () => {
         </div>
         <button
           type="submit"
-          disabled={loading}
-          className="bg-blue-600 font-medium rounded text-white py-2 w-40 mx-auto text-sm"
+          disabled={loading || isSubmitting}
+          className={`bg-blue-600 font-medium rounded text-white py-2 w-40 mx-auto text-sm flex items-center justify-center ${(loading || isSubmitting) ? 'opacity-70 cursor-not-allowed' : ''}`}
         >
-          Submit
+          {loading || isSubmitting ? (
+            <>
+              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Updating...
+            </>
+          ) : (
+            'Submit'
+          )}
         </button>
       </form>
     </>

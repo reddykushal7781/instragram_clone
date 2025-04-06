@@ -1,29 +1,41 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  exploreOutline,
-  homeFill,
-  homeOutline,
-  likeFill,
-  likeOutline,
-  messageFill,
-  messageOutline,
-  postUploadOutline,
-} from "./SvgIcons";
 
 import { Home, Search, Compass, Film, Heart, PlusSquare, MessageCircle, Zap, Hash, MoreHorizontal } from 'lucide-react';
 
 import { Link, useLocation } from "react-router-dom";
 import ProfileDetails from "./ProfileDetails";
 import NewPost from "./NewPost";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import SearchBox from "./SearchBar/SearchBox";
-import { ClickAwayListener } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { getUserDetails } from "../../actions/userAction";
 
 const Header = () => {
-  const { user } = useSelector((state) => state.user);
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const moreButtonRef = useRef(null);
   const [profileToggle, setProfileToggle] = useState(false);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
+  const [activeItem, setActiveItem] = useState('home');
+  const [showSearch, setShowSearch] = useState(false);
   const [newPost, setNewPost] = useState(false);
+
+  const { user } = useSelector((state) => state.user);
+  const { user: userDetails } = useSelector((state) => state.userDetails);
+  
+  // Always use the most up-to-date avatar
+  // If userDetails has an avatar and it's for the current user, use that
+  // Otherwise fall back to user.avatar
+  const currentUserAvatar = userDetails && userDetails._id === user?._id && userDetails.avatar 
+    ? userDetails.avatar 
+    : user?.avatar;
+
+  // Load user details if not already loaded
+  useEffect(() => {
+    if (user && user.username && (!userDetails || !userDetails._id)) {
+      dispatch(getUserDetails(user.username));
+    }
+  }, [dispatch, user, userDetails]);
 
   const location = useLocation();
   const [onHome, setOnHome] = useState(false);
@@ -34,10 +46,6 @@ const Header = () => {
     setOnChat(location.pathname.split("/").includes("direct"));
   }, [location]);
 
-  const [activeItem, setActiveItem] = useState('home');
-  
-  const [showSearch, setShowSearch] = useState(false);
-  
   // Mock user data
   const user1 = {
     avatar: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1200px-Default_pfp.svg.png"
@@ -64,9 +72,6 @@ const Header = () => {
       <span className={showSearch ? 'hidden' : ''}>{label}</span>
     </div>
   );
-
-  const moreButtonRef = useRef(null);
-  const [position, setPosition] = useState({ top: 0, left: 0 });
 
   const handleMoreClick = () => {
     if (moreButtonRef.current) {
@@ -115,7 +120,7 @@ const Header = () => {
                 </div>
                 <span className="hidden">Search</span>
               </div>
-              <div className="fixed top-[0px] left-20 w-[330px] h-[100vh] bg-white shadow-lg z-50 overflow-hidden border-r">
+              <div className="fixed top-[0px] left-20 w-[350px] h-[100vh] bg-white shadow-lg z-50 overflow-hidden border-r">
                 <div className="p-3 border-b">
                   <h3 className="text-sm font-semibold">Search</h3>
                 </div>
@@ -182,7 +187,7 @@ const Header = () => {
               <div className={`mr-3 rounded-full h-7 w-7 overflow-hidden ${activeItem === 'profile' ? 'border border-black' : ''}`}>
                 <img
                   className="w-full h-full rounded-full object-cover"
-                  src={user?.avatar}
+                  src={currentUserAvatar || user1.avatar}
                   alt="Profile"
                 />
               </div>

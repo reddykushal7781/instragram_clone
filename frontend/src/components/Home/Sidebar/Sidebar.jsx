@@ -6,7 +6,7 @@ import { getPostsOfFollowing } from "../../../actions/postAction";
 import {
   clearErrors,
   getSuggestedUsers,
-  loadUser,
+  getUserDetails
 } from "../../../actions/userAction";
 import { POST_FOLLOWING_RESET } from "../../../constants/postConstants";
 import { FOLLOW_USER_RESET } from "../../../constants/userConstants";
@@ -17,6 +17,12 @@ const Sidebar = () => {
   const dispatch = useDispatch();
 
   const { user } = useSelector((state) => state.user);
+  const { user: userDetails } = useSelector((state) => state.userDetails);
+  
+  // Use the most up-to-date user data
+  const currentUserAvatar = userDetails && userDetails._id === user?._id && userDetails.avatar 
+    ? userDetails.avatar 
+    : user?.avatar;
 
   const { error, users, loading } = useSelector((state) => state.allUsers);
   const {
@@ -24,6 +30,13 @@ const Sidebar = () => {
     success,
     message,
   } = useSelector((state) => state.followUser);
+
+  useEffect(() => {
+    if (user && user.username && (!userDetails || !userDetails._id)) {
+      dispatch(getUserDetails(user.username));
+    }
+  }, [dispatch, user, userDetails]);
+
 
   useEffect(() => {
     if (error) {
@@ -56,11 +69,7 @@ const Sidebar = () => {
               <img
                 draggable="false"
                 className="w-14 h-14 rounded-full object-cover"
-                src={
-                  user && user.avatar
-                    ? user.avatar
-                    : "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1200px-Default_pfp.svg.png"
-                }
+                src={currentUserAvatar || "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1200px-Default_pfp.svg.png"}
                 alt={user && user.name ? user.name : "User"}
               />
             </Link>

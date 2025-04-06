@@ -66,7 +66,7 @@ const SearchBox = () => {
   return (
     <ClickAwayListener onClickAway={handleClickAway}>
       <div className="relative">
-        <div className="flex items-center gap-3 w-full py-2 bg-[#efefef] rounded-lg">
+        <div className="flex items-center gap-3 w-full p-2 bg-[#efefef] rounded-lg">
           {!searching && searchIcon}
           <input
             ref={searchInputRef}
