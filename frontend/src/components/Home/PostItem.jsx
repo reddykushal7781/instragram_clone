@@ -93,12 +93,18 @@ const PostItem = ({
   };
 
   useEffect(() => {
+    setAllLikes(likes || []);
+    setAllComments(comments || []);
+    setAllSavedBy(savedBy || []);
+  }, [likes, comments, savedBy]);
+
+  useEffect(() => {
     setLiked(allLikes.some((u) => u._id === user._id));
-  }, [allLikes]);
+  }, [allLikes, user._id]);
 
   useEffect(() => {
     setSaved(allSavedBy.some((id) => id === user._id));
-  }, [allSavedBy]);
+  }, [allSavedBy, user._id]);
 
   return (
     <div className="flex flex-col border rounded bg-white relative">

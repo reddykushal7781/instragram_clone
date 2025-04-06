@@ -137,8 +137,9 @@ const PostsContainer = () => {
 
       <UsersDialog
         open={usersDialog}
-        handleClose={handleClose}
-        users={usersList}
+        onClose={handleClose}
+        title="Likes"
+        usersList={usersList}
       />
     </div>
   );
