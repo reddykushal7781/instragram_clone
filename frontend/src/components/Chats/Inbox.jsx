@@ -33,7 +33,7 @@ const Inbox = () => {
   const socketInitialized = useRef(false);
   const messageQueue = useRef([]); // Queue for messages waiting to be sent
   const pendingMessages = useRef(new Map()); // Map to track pending messages
-  const reconnectInterval = useRef(null);
+  const reconnectInterval = useRef(null); //
 
   const [typing, setTyping] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
