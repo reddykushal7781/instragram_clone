@@ -11,5 +11,7 @@ export default {
     AWS_BUCKET_REGION: process.env.AWS_BUCKET_REGION,
     AWS_IAM_USER_KEY: process.env.AWS_IAM_USER_KEY,
     AWS_IAM_USER_SECRET: process.env.AWS_IAM_USER_SECRET,
-    NODE_ENV: process.env.NODE_ENV
+    NODE_ENV: process.env.NODE_ENV,
+    EMAIL_USER: process.env.EMAIL_USER,
+    EMAIL_PASSWORD: process.env.EMAIL_PASSWORD
 }
