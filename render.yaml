@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: instagram-clone-backend
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4001
+      - key: MONGODB_URI
+        sync: false
+      - key: AWS_BUCKET_NAME
+        sync: false
+      - key: AWS_BUCKET_REGION
+        sync: false
+      - key: AWS_IAM_USER_KEY
+        sync: false
+      - key: AWS_IAM_USER_SECRET
+        sync: false 
