@@ -24,12 +24,9 @@ const NewPost = ({ newPost, setNewPost }) => {
 
   const { user: userDetails } = useSelector((state) => state.userDetails);
     
-    // Always use the most up-to-date avatar
-    // If userDetails has an avatar and it's for the current user, use that
-    // Otherwise fall back to user.avatar
-    const currentUserAvatar = userDetails && userDetails._id === user?._id && userDetails.avatar 
-      ? userDetails.avatar 
-      : user?.avatar;
+  const currentUserAvatar = userDetails && userDetails._id === user?._id && userDetails.avatar 
+    ? userDetails.avatar 
+    : user?.avatar;
   
     // Load user details if not already loaded
     useEffect(() => {
