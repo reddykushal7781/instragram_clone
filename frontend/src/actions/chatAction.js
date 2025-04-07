@@ -4,7 +4,7 @@ import { ALL_CHATS_FAIL, ALL_CHATS_REQUEST, ALL_CHATS_SUCCESS, CLEAR_ERRORS, NEW
 // Get All Chats
 export const getAllChats = () => async (dispatch) => {
   try {
-    dispatch({ type: ALL_CHATS_REQUEST });
+        dispatch({ type: ALL_CHATS_REQUEST });
 
     const { data } = await axiosInstance.get('/api/v1/chats');
 

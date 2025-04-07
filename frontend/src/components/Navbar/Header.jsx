@@ -120,7 +120,7 @@ const Header = () => {
                 </div>
                 <span className="hidden">Search</span>
               </div>
-              <div className="fixed top-[0px] left-20 w-[350px] h-[100vh] bg-white shadow-lg z-50 overflow-hidden border-r">
+              <div className="fixed top-[0px] left-20 w-[320px] h-[100vh] bg-white shadow-lg z-50 overflow-hidden border-r">
                 <div className="p-3 border-b">
                   <h3 className="text-sm font-semibold">Search</h3>
                 </div>

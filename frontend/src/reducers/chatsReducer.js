@@ -53,6 +53,7 @@ export const newChatReducer = (state = {}, { type, payload }) => {
     return {
       ...state,
       success: false,
+      chat: null
     };
   case CLEAR_ERRORS:
     return {

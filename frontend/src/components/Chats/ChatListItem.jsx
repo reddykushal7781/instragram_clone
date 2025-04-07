@@ -1,18 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
-import { SOCKET_ENDPOINT } from '../../utils/constants';
-import config from '../../utils/config'; // Import the config
-import { io } from 'socket.io-client';
+import { USER_DETAILS_RESET } from '../../constants/userConstants';
 
-const ChatListItem = ({ _id, users = [], latestMessage }) => {
+const ChatListItem = ({ _id, users = [], latestMessage, socket, onClick, isActive }) => {
   const dispatch = useDispatch();
   const params = useParams();
   const [friend, setFriend] = useState({});
-
-  const socket = useRef(null);
   const [isOnline, setIsOnline] = useState(false);
-  const [socketInitialized, setSocketInitialized] = useState(false);
 
   const { user } = useSelector((state) => state.user);
 
@@ -27,29 +22,9 @@ const ChatListItem = ({ _id, users = [], latestMessage }) => {
     }
   }, [users, user]);
 
-  // Initialize socket only once
+  // Monitor online status using the parent socket
   useEffect(() => {
-    if (!socket.current) {
-      console.log('ChatListItem connecting to socket:', SOCKET_ENDPOINT);
-      socket.current = io(SOCKET_ENDPOINT, config.SOCKET_OPTIONS);
-
-      socket.current.on('connect', () => {
-        console.log('ChatListItem socket connected');
-        setSocketInitialized(true);
-      });
-    }
-
-    return () => {
-      if (socket.current) {
-        socket.current.disconnect();
-        socket.current = null;
-      }
-    };
-  }, []);
-
-  // Monitor online status
-  useEffect(() => {
-    if (!socket.current || !friend || !friend._id) return;
+    if (!socket || !friend || !friend._id) return;
 
     const handleUserStatus = (users) => {
       if (friend && friend._id) {
@@ -58,24 +33,28 @@ const ChatListItem = ({ _id, users = [], latestMessage }) => {
       }
     };
 
-    socket.current.on('getUsers', handleUserStatus);
+    socket.on('getUsers', handleUserStatus);
 
     return () => {
-      if (socket.current) {
-        socket.current.off('getUsers', handleUserStatus);
-      }
+      socket.off('getUsers', handleUserStatus);
     };
-  }, [friend]);
+  }, [socket, friend]);
+
+  const handleClick = () => {
+    // Reset user details before switching chats
+    dispatch({ type: USER_DETAILS_RESET });
+    onClick(_id, friend._id);
+  };
 
   if (!friend || !friend._id) {
     return null; // Don't render if friend data isn't available yet
   }
 
   return (
-    <Link
-      to={`/direct/t/${_id}/${friend._id}`}
+    <div
+      onClick={handleClick}
       className={`${
-        params.chatId === _id && 'bg-gray-100'
+        isActive ? 'bg-gray-100' : ''
       } flex gap-3 items-center py-2 px-4 cursor-pointer hover:bg-gray-100`}
     >
       <div className="w-14 h-14 relative">
@@ -95,7 +74,7 @@ const ChatListItem = ({ _id, users = [], latestMessage }) => {
           {latestMessage?.content || ''}
         </span>
       </div>
-    </Link>
+    </div>
   );
 };
 
