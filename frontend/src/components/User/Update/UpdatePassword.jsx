@@ -12,6 +12,21 @@ const UpdatePassword = () => {
   const navigate = useNavigate();
 
   const { user } = useSelector((state) => state.user);
+  const { user: userDetails } = useSelector((state) => state.userDetails);
+    
+    // Always use the most up-to-date avatar
+    // If userDetails has an avatar and it's for the current user, use that
+    // Otherwise fall back to user.avatar
+    const currentUserAvatar = userDetails && userDetails._id === user?._id && userDetails.avatar 
+      ? userDetails.avatar 
+      : user?.avatar;
+
+      const user1 = {
+        avatar: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1200px-Default_pfp.svg.png"
+      };
+  
+    // Load user details if not already loaded
+   
   const { error, isUpdated, loading } = useSelector((state) => state.profile);
 
   const [oldPassword, setOldPassword] = useState('');
@@ -34,6 +49,12 @@ const UpdatePassword = () => {
   };
 
   useEffect(() => {
+    if (user && user.username && (!userDetails || !userDetails._id)) {
+      dispatch(getUserDetails(user.username));
+    }
+  }, [dispatch, user, userDetails]);
+
+  useEffect(() => {
     if (error) {
       toast.error(error);
       dispatch(clearErrors());
@@ -53,7 +74,7 @@ const UpdatePassword = () => {
 
       <form onSubmit={handlePasswordUpdate} className="flex flex-col gap-4 py-8 px-16 sm:w-3/4">
         <div className="flex items-center gap-8 ml-24">
-          <img draggable="false" className="w-11 h-11 rounded-full border object-cover" src={user.avatar} alt="" />
+          <img draggable="false" className="w-11 h-11 rounded-full border object-cover" src={currentUserAvatar || user1.avatar} alt="" />
           <span className="text-2xl">{user.username}</span>
         </div>
         <div className="flex w-full gap-8 text-right items-center">
