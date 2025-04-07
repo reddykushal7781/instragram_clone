@@ -7,6 +7,8 @@ import { toast } from "react-toastify";
 import { addNewPost, clearErrors } from "../../actions/postAction";
 import { NEW_POST_RESET } from "../../constants/postConstants";
 import { emojiIcon } from "../Home/SvgIcons";
+import { getUserDetails } from "../../actions/userAction";
+
 
 const NewPost = ({ newPost, setNewPost }) => {
   const dispatch = useDispatch();
@@ -20,6 +22,23 @@ const NewPost = ({ newPost, setNewPost }) => {
   const [caption, setCaption] = useState("");
   const [showEmojis, setShowEmojis] = useState(false);
   const [dragged, setDragged] = useState(false);
+
+  const { user: userDetails } = useSelector((state) => state.userDetails);
+    
+    // Always use the most up-to-date avatar
+    // If userDetails has an avatar and it's for the current user, use that
+    // Otherwise fall back to user.avatar
+    const currentUserAvatar = userDetails && userDetails._id === user?._id && userDetails.avatar 
+      ? userDetails.avatar 
+      : user?.avatar;
+  
+    // Load user details if not already loaded
+    useEffect(() => {
+      if (user && user.username && (!userDetails || !userDetails._id)) {
+        dispatch(getUserDetails(user.username));
+      }
+    }, [dispatch, user, userDetails]);
+  
 
   const handleDragChange = () => {
     setDragged(!dragged);
@@ -145,11 +164,7 @@ const NewPost = ({ newPost, setNewPost }) => {
               <img
                 draggable="false"
                 className="w-11 h-11 rounded-full object-cover"
-                src={
-                  user && user.avatar
-                    ? user.avatar
-                    : "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1200px-Default_pfp.svg.png"
-                }
+                src={currentUserAvatar}
                 alt="avatar"
               />
               <span className="text-black text-sm font-semibold">
