@@ -9,7 +9,6 @@ import { NEW_POST_RESET } from "../../constants/postConstants";
 import { emojiIcon } from "../Home/SvgIcons";
 import { getUserDetails } from "../../actions/userAction";
 
-
 const NewPost = ({ newPost, setNewPost }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
