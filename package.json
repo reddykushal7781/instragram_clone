@@ -2,6 +2,13 @@
   "name": "instagram_clone",
   "version": "1.0.0",
   "main": "server.js",
+  "engines": {
+  "node": "20.x"
+  },
+  "render-build": {
+    "buildCommand": "cd backend && npm install"
+  },
+
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon server.js",
