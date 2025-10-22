@@ -137,7 +137,7 @@ const getS3AvatarStorage = () => {
   return multerS3({
     s3: s3Config,
     bucket: config.AWS_BUCKET_NAME,
-    acl: "public-read",
+    // acl: "public-read",
     metadata: function (req, file, cb) {
       console.log("Processing avatar metadata:", file.fieldname);
       cb(null, { fieldName: file.fieldname });
@@ -175,7 +175,7 @@ const getS3PostStorage = () => {
   return multerS3({
     s3: s3Config,
     bucket: config.AWS_BUCKET_NAME,
-    acl: "public-read",
+    // acl: "public-read",
     metadata: function (req, file, cb) {
       console.log("Processing post metadata:", file.fieldname);
       cb(null, { fieldName: file.fieldname });
