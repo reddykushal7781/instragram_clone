@@ -3,6 +3,7 @@
 
 // Get hostname dynamically from browser
 const hostname = window.location.hostname;
+console.log('Env vars:', process.env);
 
 // For production, use the deployed backend URL
 const apiUrl = hostname === 'localhost' || hostname === '127.0.0.1'
